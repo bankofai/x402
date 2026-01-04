@@ -1,5 +1,5 @@
 """
-TronClientSigner - TRON client signer implementation
+TronClientSigner - TRON 客户端签名器实现
 """
 
 import json
@@ -9,7 +9,7 @@ from x402.signers.client.base import ClientSigner
 
 
 class TronClientSigner(ClientSigner):
-    """TRON client signer implementation"""
+    """TRON 客户端签名器实现"""
 
     def __init__(self, private_key: str, network: str | None = None) -> None:
         clean_key = private_key[2:] if private_key.startswith("0x") else private_key
@@ -20,24 +20,22 @@ class TronClientSigner(ClientSigner):
 
     @classmethod
     def from_private_key(cls, private_key: str, network: str | None = None) -> "TronClientSigner":
-        """
-        Create signer from private key.
+        """从私钥创建签名器
 
         Args:
-            private_key: TRON private key (hex string)
-            network: Optional TRON network (mainnet/shasta/nile) for lazy client initialization
+            private_key: TRON 私钥（十六进制字符串）
+            network: 可选的 TRON 网络（mainnet/shasta/nile），用于延迟初始化客户端
 
         Returns:
-            TronClientSigner instance
+            TronClientSigner 实例
         """
         return cls(private_key, network)
 
     def _ensure_tron_client(self) -> Any:
-        """
-        Lazy initialization of tron_client.
-        
+        """延迟初始化 tron_client
+
         Returns:
-            tronpy.Tron instance or None
+            tronpy.Tron 实例或 None
         """
         if self._tron_client is None and self._network:
             try:
@@ -49,7 +47,7 @@ class TronClientSigner(ClientSigner):
 
     @staticmethod
     def _derive_address(private_key: str) -> str:
-        """Derive TRON address from private key"""
+        """从私钥派生 TRON 地址"""
         try:
             from tronpy.keys import PrivateKey
             pk = PrivateKey(bytes.fromhex(private_key))
@@ -61,7 +59,7 @@ class TronClientSigner(ClientSigner):
         return self._address
 
     async def sign_message(self, message: bytes) -> str:
-        """Sign raw message using ECDSA"""
+        """使用 ECDSA 签名原始消息"""
         try:
             from tronpy.keys import PrivateKey
             pk = PrivateKey(bytes.fromhex(self._private_key))
@@ -76,7 +74,7 @@ class TronClientSigner(ClientSigner):
         types: dict[str, Any],
         message: dict[str, Any],
     ) -> str:
-        """Sign EIP-712 typed data"""
+        """签名 EIP-712 类型化数据"""
         try:
             from eth_account import Account
             from eth_account.messages import encode_typed_data
