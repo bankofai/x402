@@ -7,6 +7,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 from eth_account import Account
 from eth_account.messages import encode_typed_data
+import sys
+
+# Add x402 module to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "python" / "x402" / "src"))
+from x402.config import NetworkConfig
 
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
@@ -34,11 +39,14 @@ def test_signature_format():
     print(f"Buyer EVM: {buyer_evm}")
     print()
     
+    # Get chain ID from config
+    chain_id = NetworkConfig.get_chain_id("tron:nile")
+    
     # Create test EIP-712 message
     domain = {
         "name": "PaymentPermit",
         "version": "1",
-        "chainId": 3448148188,  # TRON Nile
+        "chainId": chain_id,
         "verifyingContract": "0x" + "11" * 20,
     }
     

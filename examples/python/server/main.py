@@ -1,13 +1,14 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from x402.server import X402Server
 from x402.fastapi import x402_protected
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
 app = FastAPI()
-server = X402Server() # 根据需要设置机制/中间层
+server = X402Server()
 
 @app.get("/protected")
 @x402_protected(

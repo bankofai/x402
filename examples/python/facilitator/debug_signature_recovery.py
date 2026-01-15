@@ -1,12 +1,17 @@
 """Debug script to verify EIP-712 signature recovery matches contract expectations"""
 
 import os
+import sys
 import json
 from pathlib import Path
 from dotenv import load_dotenv
 from eth_account import Account
 from eth_account.messages import encode_typed_data
 import base58
+
+# Add x402 module to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "python" / "x402" / "src"))
+from x402.config import NetworkConfig
 
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
@@ -40,11 +45,14 @@ def test_signature_recovery():
     print(f"Owner (EVM): {owner_evm}")
     print()
     
+    # Get chain ID from config
+    chain_id = NetworkConfig.get_chain_id("tron:nile")
+    
     # Create a test EIP-712 message similar to PaymentPermit
     domain = {
         "name": "PaymentPermit",
         "version": "1",
-        "chainId": 3448148188,  # TRON Nile
+        "chainId": chain_id,
         "verifyingContract": "0x" + "02ea7c9bb4ebcfd58058baca86b6f663356a63ec",  # PaymentPermit contract
     }
     

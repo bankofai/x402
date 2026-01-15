@@ -127,7 +127,7 @@ async def main():
     if not TRON_PRIVATE_KEY:
         raise ValueError("TRON_PRIVATE_KEY not set in .env file")
 
-    await run_fee_quote()
+    # await run_fee_quote()
     await run_facilitator_settle()
 
 
