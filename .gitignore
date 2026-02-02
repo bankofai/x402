@@ -205,13 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-/.idea/inspectionProfiles/profiles_settings.xml
-/.idea/inspectionProfiles/Project_Default.xml
-/.idea/.gitignore
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/vcs.xml
-/.idea/x402.iml
-/.vscode/settings.json
-/.idea/git_toolbox_prj.xml
+/.idea/
+/.vscode/
 /examples/typescript/client-web/node_modules/
+/examples/typescript/client/node_modules/
+/typescript/node_modules/

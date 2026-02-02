@@ -60,10 +60,11 @@ async function main(): Promise<void> {
 
   const tronWeb = new TronWeb({
     fullHost: getTronFullHost(TRON_NETWORK),
-  });
+    privateKey: TRON_PRIVATE_KEY,
+  }) as any;
 
   const signer = TronClientSigner.withPrivateKey(
-    tronWeb as unknown as never,
+    tronWeb,
     TRON_PRIVATE_KEY,
     networkName as 'mainnet' | 'nile' | 'shasta'
   );
