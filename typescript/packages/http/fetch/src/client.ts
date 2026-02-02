@@ -9,7 +9,7 @@ import {
   PaymentRequirementsSelector,
   encodePaymentPayload,
   decodePaymentPayload,
-} from '@x402/core';
+} from '@tvm-x402/core';
 
 /** x402 协议的 HTTP 头 */
 const PAYMENT_SIGNATURE_HEADER = 'PAYMENT-SIGNATURE';

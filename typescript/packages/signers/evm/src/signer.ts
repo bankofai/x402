@@ -2,8 +2,8 @@
  * EvmClientSigner - EVM client signer for x402 protocol
  */
 
-import type { ClientSigner } from '@x402/core';
-import { ERC20_ABI, getPaymentPermitAddress } from '@x402/core';
+import type { ClientSigner } from '@tvm-x402/core';
+import { ERC20_ABI, getPaymentPermitAddress } from '@tvm-x402/core';
 
 /** Viem WalletClient type (from viem package) */
 interface WalletClient {

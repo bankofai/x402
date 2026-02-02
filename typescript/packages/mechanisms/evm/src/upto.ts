@@ -9,7 +9,7 @@ import type {
   PaymentPayload,
   PaymentPermit,
   PaymentPermitContext,
-} from '@x402/core';
+} from '@tvm-x402/core';
 import {
   KIND_MAP,
   PAYMENT_PERMIT_TYPES,
@@ -17,7 +17,7 @@ import {
   getChainId,
   getPaymentPermitAddress,
   ZERO_ADDRESSES,
-} from '@x402/core';
+} from '@tvm-x402/core';
 
 /**
  * EVM client mechanism for "upto" payment scheme

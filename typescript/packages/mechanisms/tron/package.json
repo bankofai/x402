@@ -1,5 +1,5 @@
 {
-  "name": "@x402/mechanism-tron",
+  "name": "@tvm-x402/mechanism-tron",
   "version": "0.1.0",
   "description": "x402 TRON Client Mechanism",
   "main": "./dist/index.js",
@@ -18,7 +18,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@x402/core": "workspace:*"
+    "@tvm-x402/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
