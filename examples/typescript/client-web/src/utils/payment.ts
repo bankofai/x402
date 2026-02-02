@@ -265,7 +265,7 @@ export async function createPaymentPayload(
 
     // PaymentPermit contract addresses (Base58 format)
     const PAYMENT_PERMIT_CONTRACTS: Record<string, string> = {
-      'tron:nile': 'TCgKLk57cH8U99kfx3rmiZL5wCc3q5Wdz4',
+      'tron:nile': 'TCR6EaRtLRYjWPr7YWHqt4uL81rfevtE8p',
       'tron:mainnet': 'T0000000000000000000000000000000', // TODO: Deploy
       'tron:shasta': 'T0000000000000000000000000000000', // TODO: Deploy
     };
