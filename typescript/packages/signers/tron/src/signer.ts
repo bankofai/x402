@@ -117,7 +117,8 @@ export class TronClientSigner implements ClientSigner {
         [
           { type: 'address', value: ownerHex },
           { type: 'address', value: spenderHex },
-        ]
+        ],
+        this.address
       );
 
       if (result.result?.result && result.constant_result?.length) {

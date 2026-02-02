@@ -44,6 +44,20 @@ export function decodeBase64ToBytes(data: string): Uint8Array {
 }
 
 /**
+ * Encode an object to JSON string
+ */
+export function encodeJSON(data: unknown): string {
+  return JSON.stringify(data);
+}
+
+/**
+ * Decode a JSON string to object
+ */
+export function decodeJSON<T = any>(data: string): T {
+  return JSON.parse(data) as T;
+}
+
+/**
  * Encode payment payload to base64 for HTTP header
  */
 export function encodePaymentPayload(payload: unknown): string {

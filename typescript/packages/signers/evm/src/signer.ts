@@ -112,7 +112,7 @@ export class EvmClientSigner implements ClientSigner {
     const spender = getPaymentPermitAddress(network);
     const result = await this.publicClient.readContract({
       address: token,
-      abi: ERC20_ABI,
+      abi: [...ERC20_ABI],
       functionName: 'allowance',
       args: [this.address, spender],
     });

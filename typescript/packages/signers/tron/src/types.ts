@@ -55,7 +55,8 @@ export interface TronWeb {
       contractAddress: string,
       functionSelector: string,
       options: Record<string, unknown>,
-      parameters: unknown[]
+      parameters: unknown[],
+      issuerAddress?: string
     ): Promise<{
       result: { result: boolean };
       constant_result?: string[];
