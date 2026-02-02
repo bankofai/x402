@@ -3,3 +3,5 @@ packages:
   - 'packages/mechanisms/*'
   - 'packages/signers/*'
   - 'packages/http/*'
+  - 'packages/tools'
+  - '../examples/typescript/client'
