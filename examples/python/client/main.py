@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
+import tempfile
 from dotenv import load_dotenv
 import httpx
 import logging
@@ -73,7 +74,16 @@ async def main():
             if 'application/json' in content_type:
                 print(f"\nResponse: {response.json()}")
             elif 'image/' in content_type:
-                print(f"\n🖼️  Received image file")
+                ext = "png"
+                if "jpeg" in content_type or "jpg" in content_type:
+                    ext = "jpg"
+                elif "webp" in content_type:
+                    ext = "webp"
+
+                with tempfile.NamedTemporaryFile(prefix="x402_", suffix=f".{ext}", delete=False, dir="/tmp") as f:
+                    f.write(response.content)
+                    saved_path = f.name
+                print(f"\n🖼️  Received image file, saved to: {saved_path}")
             else:
                 print(f"\nResponse (first 200 chars): {response.text[:200]}")
         except Exception as e:

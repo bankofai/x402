@@ -2,6 +2,9 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { writeFile } from 'fs/promises';
+import { tmpdir } from 'os';
+import { randomUUID } from 'crypto';
 
 import { TronWeb } from 'tronweb';
 
@@ -116,6 +119,27 @@ async function main(): Promise<void> {
     if (requiredToken && requiredTotal !== undefined) {
       const allowanceAfter = await signer.checkAllowance(requiredToken, requiredTotal, TRON_NETWORK);
       console.log(`[ALLOWANCE] Current allowance (after): ${allowanceAfter.toString()}`);
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json')) {
+      const body = await response.json();
+      console.log(`\nResponse: ${JSON.stringify(body, null, 2)}`);
+    } else if (contentType.includes('image/')) {
+      let ext = 'png';
+      if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+        ext = 'jpg';
+      } else if (contentType.includes('webp')) {
+        ext = 'webp';
+      }
+
+      const filePath = resolve(tmpdir(), `x402_${randomUUID()}.${ext}`);
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      await writeFile(filePath, bytes);
+      console.log(`\n🖼️  Received image file, saved to: ${filePath}`);
+    } else {
+      const text = await response.text();
+      console.log(`\nResponse (first 200 chars): ${text.slice(0, 200)}`);
     }
   } catch (error) {
     console.error('\n❌ Error:', error instanceof Error ? error.message : error);
