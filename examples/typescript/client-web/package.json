@@ -1,5 +1,5 @@
 {
-  "name": "@tvm-x402/tron-client-web-example",
+  "name": "@x402-tron/tron-client-web-example",
   "private": true,
   "version": "0.0.1",
   "type": "module",

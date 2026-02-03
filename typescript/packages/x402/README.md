@@ -1,11 +1,11 @@
-# @sun-protocol/tvm-x402
+# @open-aibank/x402-tron
 
-tvm-x402 TypeScript SDK (TRON-only).
+x402-tron TypeScript SDK (TRON-only).
 
 ## Install
 
 ```bash
-npm i @sun-protocol/tvm-x402
+npm i @open-aibank/x402-tron
 ```
 
 ## Peer dependencies
@@ -32,5 +32,5 @@ console.log("tronWeb ready", !!tronWeb);
 
 ## Links
 
-- Repository: https://github.com/sun-protocol/tvm-x402
-- Issues: https://github.com/sun-protocol/tvm-x402/issues
+- Repository: https://github.com/open-aibank/x402-tron
+- Issues: https://github.com/open-aibank/x402-tron/issues

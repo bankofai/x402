@@ -4,8 +4,8 @@
  * Uses TronWeb's signTypedData (TIP-712) for EIP-712 compatible signing.
  */
 
-import type { ClientSigner } from '@tvm-x402/core';
-import { getChainId, getPaymentPermitAddress, toEvmHex, type Hex } from '@tvm-x402/core';
+import type { ClientSigner } from '@x402-tron/core';
+import { getChainId, getPaymentPermitAddress, toEvmHex, type Hex } from '@x402-tron/core';
 import type { TronWeb, TypedDataDomain, TypedDataField, TronNetwork } from './types';
 
 /** ERC20 function selectors */

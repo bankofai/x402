@@ -11,7 +11,7 @@ import type {
   PaymentPayload,
   PaymentPermit,
   PaymentPermitContext,
-} from '@tvm-x402/core';
+} from '@x402-tron/core';
 import {
   KIND_MAP,
   PAYMENT_PERMIT_TYPES,
@@ -20,7 +20,7 @@ import {
   TronAddressConverter,
   TRON_ZERO_ADDRESS,
   paymentIdToBytes,
-} from '@tvm-x402/core';
+} from '@x402-tron/core';
 
 /**
  * TRON client mechanism for "upto" payment scheme

@@ -1,14 +1,14 @@
 {
-  "name": "@tvm-x402/core",
+  "name": "@x402-tron/core",
   "version": "0.1.0-beta.1",
   "description": "x402 Core Client SDK",
-  "homepage": "https://github.com/sun-protocol/tvm-x402#readme",
+  "homepage": "https://github.com/open-aibank/x402-tron#readme",
   "bugs": {
-    "url": "https://github.com/sun-protocol/tvm-x402/issues"
+    "url": "https://github.com/open-aibank/x402-tron/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sun-protocol/tvm-x402.git",
+    "url": "git+https://github.com/open-aibank/x402-tron.git",
     "directory": "typescript/packages/core"
   },
   "engines": {
