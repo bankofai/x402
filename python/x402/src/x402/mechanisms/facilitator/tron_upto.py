@@ -4,11 +4,11 @@ UptoTronFacilitatorMechanism - "upto" 支付方案的 TRON facilitator 机制
 
 from typing import Any
 
-from x402.abi import PAYMENT_PERMIT_ABI, MERCHANT_ABI, get_abi_json
+from x402.abi import PAYMENT_PERMIT_ABI, get_abi_json, get_payment_permit_eip712_types
 from x402.address import AddressConverter, TronAddressConverter
 from x402.config import NetworkConfig
 from x402.mechanisms.facilitator.base_upto import BaseUptoFacilitatorMechanism
-from x402.types import PaymentRequirements
+from x402.types import PaymentPermit, PaymentRequirements, KIND_MAP
 
 
 class UptoTronFacilitatorMechanism(BaseUptoFacilitatorMechanism):
@@ -16,6 +16,57 @@ class UptoTronFacilitatorMechanism(BaseUptoFacilitatorMechanism):
 
     def _get_address_converter(self) -> AddressConverter:
         return TronAddressConverter()
+
+    async def _verify_signature(
+        self,
+        permit: PaymentPermit,
+        signature: str,
+        network: str,
+    ) -> bool:
+        """Verify EIP-712 signature with TronWeb format (hex string for paymentId)"""
+        permit_address = NetworkConfig.get_payment_permit_address(network)
+        chain_id = NetworkConfig.get_chain_id(network)
+        converter = self._address_converter
+
+        # Convert permit to EIP-712 message format WITHOUT converting paymentId to bytes
+        # TronWeb signs with hex strings for bytes16 fields
+        message = permit.model_dump(by_alias=True)
+        
+        # Convert kind string to numeric value
+        message["meta"]["kind"] = KIND_MAP.get(message["meta"]["kind"], 0)
+        
+        # Convert string values to integers for EIP-712 compatibility
+        message["meta"]["nonce"] = int(message["meta"]["nonce"])
+        message["payment"]["maxPayAmount"] = int(message["payment"]["maxPayAmount"])
+        message["fee"]["feeAmount"] = int(message["fee"]["feeAmount"])
+        message["delivery"]["miniReceiveAmount"] = int(message["delivery"]["miniReceiveAmount"])
+        message["delivery"]["tokenId"] = int(message["delivery"]["tokenId"])
+        
+        # Keep paymentId as hex string (TronWeb format) - do NOT convert to bytes
+        # message["meta"]["paymentId"] remains as "0x..." string
+        
+        # Convert addresses to EVM format
+        message = converter.convert_message_addresses(message)
+
+        # Debug logging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[VERIFY TRON] Domain: name=PaymentPermit, chainId={chain_id}, verifyingContract={converter.to_evm_format(permit_address)}")
+        logger.info(f"[VERIFY TRON] Message: {message}")
+        logger.info(f"[VERIFY TRON] Signature: {signature}")
+        logger.info(f"[VERIFY TRON] Buyer address: {permit.buyer}")
+
+        return await self._signer.verify_typed_data(
+            address=permit.buyer,
+            domain={
+                "name": "PaymentPermit",
+                "chainId": chain_id,
+                "verifyingContract": converter.to_evm_format(permit_address),
+            },
+            types=get_payment_permit_eip712_types(),
+            message=message,
+            signature=signature,
+        )
 
     async def _settle_payment_only(
         self,
@@ -42,22 +93,3 @@ class UptoTronFacilitatorMechanism(BaseUptoFacilitatorMechanism):
             args=args,
         )
 
-    async def _settle_with_delivery(
-        self,
-        permit: Any,
-        signature: str,
-        requirements: PaymentRequirements,
-    ) -> str | None:
-        """带链上交付的结算"""
-        merchant_address = requirements.pay_to
-        self._logger.info(f"Calling settle on merchant contract={merchant_address}")
-
-        permit_tuple = self._build_permit_tuple(permit)
-        sig_bytes = bytes.fromhex(signature[2:] if signature.startswith("0x") else signature)
-
-        return await self._signer.write_contract(
-            contract_address=merchant_address,
-            abi=get_abi_json(MERCHANT_ABI),
-            method="settle",
-            args=[permit_tuple, sig_bytes],
-        )

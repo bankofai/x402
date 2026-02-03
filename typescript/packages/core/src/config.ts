@@ -9,25 +9,17 @@ export const CHAIN_IDS: Record<string, number> = {
   'tron:mainnet': 728126428,   // 0x2b6653dc
   'tron:shasta': 2494104990,   // 0x94a9059e
   'tron:nile': 3448148188,     // 0xcd8690dc
-  // EVM networks
-  'eip155:1': 1,               // Ethereum Mainnet
-  'eip155:8453': 8453,         // Base
-  'eip155:84532': 84532,       // Base Sepolia
 };
 
 /** PaymentPermit contract addresses */
 export const PAYMENT_PERMIT_ADDRESSES: Record<string, string> = {
   'tron:mainnet': 'T...',  // TODO: Deploy
   'tron:shasta': 'T...',   // TODO: Deploy
-  'tron:nile': 'TCgKLk57cH8U99kfx3rmiZL5wCc3q5Wdz4',
-  // EVM addresses would be 0x format
+  'tron:nile': 'TCR6EaRtLRYjWPr7YWHqt4uL81rfevtE8p',
 };
 
-/** Zero addresses for different network types */
-export const ZERO_ADDRESSES = {
-  evm: '0x0000000000000000000000000000000000000000',
-  tron: 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb',
-} as const;
+/** Zero address for TRON */
+export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb';
 
 /**
  * Get chain ID for network
@@ -44,7 +36,7 @@ export function getChainId(network: string): number {
  * Get PaymentPermit contract address for network
  */
 export function getPaymentPermitAddress(network: string): string {
-  return PAYMENT_PERMIT_ADDRESSES[network] ?? ZERO_ADDRESSES.evm;
+  return PAYMENT_PERMIT_ADDRESSES[network] ?? TRON_ZERO_ADDRESS;
 }
 
 /**
@@ -55,15 +47,11 @@ export function isTronNetwork(network: string): boolean {
 }
 
 /**
- * Check if network is EVM
- */
-export function isEvmNetwork(network: string): boolean {
-  return network.startsWith('eip155:');
-}
-
-/**
- * Get zero address for network type
+ * Get zero address for TRON network
  */
 export function getZeroAddress(network: string): string {
-  return isTronNetwork(network) ? ZERO_ADDRESSES.tron : ZERO_ADDRESSES.evm;
+  if (!isTronNetwork(network)) {
+    throw new Error(`Unsupported network: ${network}`);
+  }
+  return TRON_ZERO_ADDRESS;
 }

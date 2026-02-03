@@ -1,15 +1,19 @@
 import os
 import logging
 import time
+import io
+import threading
 from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from x402.server import X402Server
 from x402.fastapi import x402_protected
 from x402.facilitator import FacilitatorClient
 from x402.config import NetworkConfig
+
+from PIL import Image, ImageDraw, ImageFont
 
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
@@ -42,7 +46,7 @@ app.add_middleware(
 )
 
 # Configuration
-MERCHANT_CONTRACT_ADDRESS = os.getenv("MERCHANT_CONTRACT_ADDRESS", "")
+PAY_TO_ADDRESS = os.getenv("PAY_TO_ADDRESS") or "TDhj8uX7SVJwvhCUrMaiQHqPgrB6wRb3eG"
 # Hardcoded server configuration
 FACILITATOR_URL = "http://localhost:8001"
 SERVER_HOST = "0.0.0.0"
@@ -51,8 +55,8 @@ SERVER_PORT = 8000
 # Path to protected image
 PROTECTED_IMAGE_PATH = Path(__file__).parent / "protected.png"
 
-if not MERCHANT_CONTRACT_ADDRESS:
-    raise ValueError("MERCHANT_CONTRACT_ADDRESS environment variable is required")
+_request_count_lock = threading.Lock()
+_request_count = 0
 
 # Initialize server (TRON mechanisms auto-registered by default)
 server = X402Server()
@@ -62,7 +66,7 @@ server.add_facilitator(facilitator)
 
 print(f"Server Configuration:")
 print(f"  Network: {NetworkConfig.TRON_NILE}")
-print(f"  Merchant Contract: {MERCHANT_CONTRACT_ADDRESS}")
+print(f"  Pay To: {PAY_TO_ADDRESS}")
 print(f"  Facilitator URL: {FACILITATOR_URL}")
 
 @app.get("/")
@@ -71,7 +75,7 @@ async def root():
     return {
         "service": "X402 Protected Resource Server",
         "status": "running",
-        "merchant_contract": MERCHANT_CONTRACT_ADDRESS,
+        "pay_to": PAY_TO_ADDRESS,
         "facilitator": FACILITATOR_URL,
     }
 
@@ -80,27 +84,54 @@ async def root():
     server=server,
     price="1 USDT",  # 1 USDT = 1000000 (6 decimals)
     network=NetworkConfig.TRON_NILE,
-    pay_to=MERCHANT_CONTRACT_ADDRESS,
+    pay_to=PAY_TO_ADDRESS,
 )
 async def protected_endpoint(request: Request):
-    """Serve the protected image directly"""
+    """Serve the protected image (generated dynamically)"""
+    global _request_count
     if not PROTECTED_IMAGE_PATH.exists():
         return {"error": "Protected image not found"}
-    return FileResponse(PROTECTED_IMAGE_PATH, media_type="image/png")
 
-@app.get("/protected-delivery")
-@x402_protected(
-    server=server,
-    price="1 USDT",
-    network=NetworkConfig.TRON_NILE,
-    pay_to=MERCHANT_CONTRACT_ADDRESS,
-    delivery_mode=True,  # Enable delivery mode
-)
-async def protected_delivery_endpoint(request: Request):
-    """Serve protected content with delivery mode (PAYMENT_AND_DELIVERY)"""
-    if not PROTECTED_IMAGE_PATH.exists():
-        return {"error": "Protected image not found"}
-    return FileResponse(PROTECTED_IMAGE_PATH, media_type="image/png")
+    with _request_count_lock:
+        _request_count += 1
+        request_count = _request_count
+
+    with Image.open(PROTECTED_IMAGE_PATH) as base:
+        image = base.convert("RGBA")
+        draw = ImageDraw.Draw(image)
+
+        try:
+            font = ImageFont.truetype("DejaVuSans.ttf", 50)
+        except Exception:
+            font = ImageFont.load_default()
+        text = f"req: {request_count}"
+
+        x = 16
+        y = 16
+        padding = 6
+
+        bbox = draw.textbbox((x, y), text, font=font)
+        bg = (
+            bbox[0] - padding,
+            bbox[1] - padding,
+            bbox[2] + padding,
+            bbox[3] + padding,
+        )
+        draw.rectangle(bg, fill=(0, 0, 0, 160))
+        draw.text(
+            (x, y),
+            text,
+            fill=(255, 255, 0, 255),
+            font=font,
+            stroke_width=2,
+            stroke_fill=(0, 0, 0, 255),
+        )
+
+        buf = io.BytesIO()
+        image.save(buf, format="PNG")
+        buf.seek(0)
+
+    return StreamingResponse(buf, media_type="image/png")
 
 if __name__ == "__main__":
     import uvicorn
@@ -113,7 +144,6 @@ if __name__ == "__main__":
     print(f"Endpoints:")
     print(f"  /protected          - Payment only (1 USDT)")
     print(f"  /protected-with-fee - Payment with fee (2 USDT + 1 USDT fee)")
-    print(f"  /protected-delivery - Payment and delivery mode")
     print("=" * 80 + "\n")
     
     uvicorn.run(

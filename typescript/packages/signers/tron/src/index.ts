@@ -12,4 +12,4 @@ export type {
 export { TRON_CHAIN_IDS } from './types.js';
 
 // Re-export address utilities from core
-export { toEvmHex, toBase58, type Hex } from '@x402/core';
+export { toEvmHex, toBase58, type Hex } from '@tvm-x402/core';

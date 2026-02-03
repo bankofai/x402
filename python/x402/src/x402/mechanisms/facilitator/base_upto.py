@@ -9,7 +9,7 @@ import time
 from abc import abstractmethod
 from typing import Any, TYPE_CHECKING
 
-from x402.abi import PAYMENT_PERMIT_ABI, MERCHANT_ABI, get_abi_json, get_payment_permit_eip712_types
+from x402.abi import PAYMENT_PERMIT_ABI, get_abi_json, get_payment_permit_eip712_types
 from x402.address import AddressConverter
 from x402.config import NetworkConfig
 from x402.exceptions import PermitValidationError
@@ -22,7 +22,6 @@ from x402.types import (
     FeeQuoteResponse,
     FeeInfo,
     KIND_MAP,
-    PAYMENT_AND_DELIVERY,
 )
 from x402.utils import convert_permit_to_eip712_message, payment_id_to_bytes
 
@@ -143,13 +142,9 @@ class BaseUptoFacilitatorMechanism(FacilitatorMechanism):
 
         signature = payload.payload.signature
 
-        # Choose settlement method based on delivery mode
-        if permit.meta.kind == PAYMENT_AND_DELIVERY:
-            self._logger.info("Settling with delivery via merchant contract...")
-            tx_hash = await self._settle_with_delivery(permit, signature, requirements)
-        else:
-            self._logger.info("Settling payment only via PaymentPermit contract...")
-            tx_hash = await self._settle_payment_only(permit, signature, requirements)
+        # Always use payment only settlement
+        self._logger.info("Settling payment only via PaymentPermit contract...")
+        tx_hash = await self._settle_payment_only(permit, signature, requirements)
 
         if tx_hash is None:
             self._logger.error("Settlement transaction failed: no transaction hash returned")
@@ -233,6 +228,21 @@ class BaseUptoFacilitatorMechanism(FacilitatorMechanism):
         message = convert_permit_to_eip712_message(permit)
         message = converter.convert_message_addresses(message)
 
+        # Debug: log exact message being verified
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[VERIFY] Domain: name=PaymentPermit, chainId={chain_id}, verifyingContract={converter.to_evm_format(permit_address)}")
+        # Log paymentId as hex for comparison with TypeScript
+        msg_copy = dict(message)
+        if 'meta' in msg_copy and 'paymentId' in msg_copy['meta']:
+            pid = msg_copy['meta']['paymentId']
+            if isinstance(pid, bytes):
+                msg_copy['meta'] = dict(msg_copy['meta'])
+                msg_copy['meta']['paymentId'] = '0x' + pid.hex()
+        logger.info(f"[VERIFY] Message: {msg_copy}")
+        logger.info(f"[VERIFY] Signature: {signature}")
+        logger.info(f"[VERIFY] Buyer address: {permit.buyer}")
+
         return await self._signer.verify_typed_data(
             address=permit.buyer,
             domain={
@@ -253,16 +263,6 @@ class BaseUptoFacilitatorMechanism(FacilitatorMechanism):
         requirements: PaymentRequirements,
     ) -> str | None:
         """Payment only settlement (no on-chain delivery), implemented by subclasses"""
-        pass
-
-    @abstractmethod
-    async def _settle_with_delivery(
-        self,
-        permit: Any,
-        signature: str,
-        requirements: PaymentRequirements,
-    ) -> str | None:
-        """Settlement with on-chain delivery, implemented by subclasses"""
         pass
 
     def _build_permit_tuple(self, permit: Any) -> tuple:

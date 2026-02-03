@@ -1,7 +1,7 @@
 import type { PaymentRequirements, PaymentPayload, PaymentPermit, PaymentPermitContext } from '../types';
 
 /** Delivery kind type */
-type DeliveryKind = 'PAYMENT_ONLY' | 'PAYMENT_AND_DELIVERY';
+type DeliveryKind = 'PAYMENT_ONLY';
 
 /** TronWeb instance type (injected by TronLink) */
 interface TronWebInstance {
@@ -26,7 +26,6 @@ interface TronWebInstance {
 /** Kind mapping for EIP-712 (string to numeric) */
 const KIND_MAP: Record<DeliveryKind, number> = {
   PAYMENT_ONLY: 0,
-  PAYMENT_AND_DELIVERY: 1,
 };
 
 /** Base58 alphabet for TRON addresses */
@@ -265,7 +264,7 @@ export async function createPaymentPayload(
 
     // PaymentPermit contract addresses (Base58 format)
     const PAYMENT_PERMIT_CONTRACTS: Record<string, string> = {
-      'tron:nile': 'TCgKLk57cH8U99kfx3rmiZL5wCc3q5Wdz4',
+      'tron:nile': 'TCR6EaRtLRYjWPr7YWHqt4uL81rfevtE8p',
       'tron:mainnet': 'T0000000000000000000000000000000', // TODO: Deploy
       'tron:shasta': 'T0000000000000000000000000000000', // TODO: Deploy
     };
