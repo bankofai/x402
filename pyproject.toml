@@ -59,9 +59,3 @@ dev-dependencies = [
     "mypy>=1.0.0",
     "ruff>=0.1.0",
 ]
-
-[tool.uv.sources]
-x402 = { workspace = true }
-
-[tool.uv.workspace]
-members = ["python/x402", "examples/python/client", "examples/python/server"]
