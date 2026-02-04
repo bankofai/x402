@@ -3,7 +3,7 @@ x402 类型测试
 """
 
 import pytest
-from x402.types import (
+from x402_tron.types import (
     PaymentPermit,
     PermitMeta,
     Payment,

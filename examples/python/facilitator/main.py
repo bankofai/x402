@@ -17,10 +17,10 @@ import uvicorn
 # Add x402 to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "python" / "x402" / "src"))
 
-from x402.logging_config import setup_logging
-from x402.mechanisms.facilitator import UptoTronFacilitatorMechanism
-from x402.signers.facilitator import TronFacilitatorSigner
-from x402.types import (
+from x402_tron.logging_config import setup_logging
+from x402_tron.mechanisms.facilitator import UptoTronFacilitatorMechanism
+from x402_tron.signers.facilitator import TronFacilitatorSigner
+from x402_tron.types import (
     PaymentPayload,
     PaymentRequirements,
     VerifyResponse,

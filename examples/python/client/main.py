@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 import httpx
 import logging
 
-from x402.clients import X402Client, X402HttpClient
-from x402.mechanisms.client import UptoTronClientMechanism
-from x402.signers.client import TronClientSigner
+from x402_tron.clients import X402Client, X402HttpClient
+from x402_tron.mechanisms.client import UptoTronClientMechanism
+from x402_tron.signers.client import TronClientSigner
 
 # Enable detailed logging
 logging.basicConfig(

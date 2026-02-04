@@ -3,8 +3,8 @@ X402Client 测试
 """
 
 import pytest
-from x402.clients import X402Client
-from x402.types import PaymentRequirements
+from x402_tron.clients import X402Client
+from x402_tron.types import PaymentRequirements
 
 
 class MockClientMechanism:

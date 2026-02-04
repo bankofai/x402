@@ -9,8 +9,8 @@ import time
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from x402.mechanisms.facilitator.tron_upto import UptoTronFacilitatorMechanism
-from x402.types import (
+from x402_tron.mechanisms.facilitator.tron_upto import UptoTronFacilitatorMechanism
+from x402_tron.types import (
     PaymentRequirements,
     PaymentPayload,
     PaymentPayloadData,

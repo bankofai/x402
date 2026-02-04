@@ -5,8 +5,8 @@ Tests for server-side signature verification
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from x402.server.x402_server import X402Server
-from x402.types import (
+from x402_tron.server.x402_server import X402Server
+from x402_tron.types import (
     PaymentPayload,
     PaymentPayloadData,
     PaymentPermit,
