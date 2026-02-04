@@ -1,4 +1,4 @@
-# Release Notes - v0.1.0
+# Release Notes - v0.1.4
 
 **Release Date:** February 4, 2026
 
