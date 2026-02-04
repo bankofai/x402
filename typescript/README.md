@@ -2,49 +2,40 @@
 
 TypeScript Client SDK for x402 Payment Protocol.
 
-## Packages
+## Package
 
-- `@x402/core` - Core client SDK with types and utilities
-- `@x402/mechanism-tron` - TRON client mechanism
-- `@x402/mechanism-evm` - EVM client mechanism
-- `@x402/signer-tron` - TRON client signer
-- `@x402/signer-evm` - EVM client signer
-- `@x402/http-fetch` - Fetch-based HTTP client adapter
+- `@open-aibank/x402-tron` - Complete TypeScript SDK with client, mechanisms, signers, and HTTP adapter
 
 ## Installation
 
 ```bash
-# Install core package
-pnpm add @x402/core
-
-# Install chain-specific packages
-pnpm add @x402/mechanism-tron @x402/signer-tron
-# or
-pnpm add @x402/mechanism-evm @x402/signer-evm
-
-# Install HTTP adapter
-pnpm add @x402/http-fetch
+# Install the package
+pnpm add @open-aibank/x402-tron tronweb
 ```
 
 ## Quick Start
 
 ```typescript
-import { X402Client } from '@x402/core';
-import { UptoTronClientMechanism } from '@x402/mechanism-tron';
-import { TronClientSigner } from '@x402/signer-tron';
-import { X402FetchClient } from '@x402/http-fetch';
+import { X402Client, UptoTronClientMechanism, TronClientSigner, X402FetchClient } from '@open-aibank/x402-tron';
+import TronWeb from 'tronweb';
 
-// 1. Create signer
-const signer = TronClientSigner.fromPrivateKey('your_private_key');
+// 1. Initialize TronWeb
+const tronWeb = new TronWeb({
+  fullHost: 'https://nile.trongrid.io',
+  privateKey: 'your_private_key',
+});
 
-// 2. Create X402Client and register mechanisms
+// 2. Create signer
+const signer = TronClientSigner.withPrivateKey(tronWeb, 'your_private_key', 'nile');
+
+// 3. Create X402Client and register mechanisms
 const x402Client = new X402Client()
   .register('tron:*', new UptoTronClientMechanism(signer));
 
-// 3. Create HTTP client with automatic 402 handling
+// 4. Create HTTP client with automatic 402 handling
 const client = new X402FetchClient(x402Client);
 
-// 4. Make requests - 402 payments handled automatically
+// 5. Make requests - 402 payments handled automatically
 const response = await client.get('https://api.example.com/premium-data');
 console.log(await response.json());
 ```
