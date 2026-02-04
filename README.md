@@ -168,7 +168,7 @@ The `upto` scheme allows payments up to a specified amount, useful for:
 ```
 x402-tron/
 ├── python/x402/              # Python SDK
-│   ├── src/x402/
+│   ├── src/x402_tron/
 │   │   ├── mechanisms/       # Payment mechanisms (client, server, facilitator)
 │   │   ├── signers/          # TIP-712 signers
 │   │   ├── clients/          # Facilitator client
@@ -177,18 +177,13 @@ x402-tron/
 │   │   ├── fastapi/          # FastAPI middleware
 │   │   └── utils/            # Utilities
 │   └── tests/
-├── typescript/packages/      # TypeScript SDK
-│   ├── core/                 # Core types and client
-│   ├── mechanisms/tron/      # TRON mechanisms
-│   ├── signers/tron/         # TRON signers
-│   └── http/                 # HTTP adapters
-├── examples/                 # Example implementations
-│   ├── python/
-│   │   ├── client/
-│   │   ├── server/
-│   │   └── facilitator/
-│   └── typescript/
-└── e2e/                      # End-to-end tests
+└── typescript/packages/      # TypeScript SDK
+    └── x402/                 # Complete SDK package
+        ├── client/           # Core client
+        ├── mechanisms/       # TRON mechanisms
+        ├── signers/          # TRON signers
+        ├── http/             # HTTP adapters
+        └── types/            # Type definitions
 ```
 
 ## Development
@@ -244,13 +239,16 @@ pnpm build
 
 ## Examples
 
-See the `examples/` directory for complete working examples:
+For complete working examples and demos, see the separate demo repository:
 
-- **Python Client**: `examples/python/client/`
-- **Python Server**: `examples/python/server/`
-- **Python Facilitator**: `examples/python/facilitator/`
-- **TypeScript Client**: `examples/typescript/client/`
-- **Web Client**: `examples/typescript/client-web/`
+**[x402-tron-demo](https://github.com/open-aibank/x402-tron-demo)**
+
+The demo repository includes:
+- Python Client examples
+- Python Server examples
+- Python Facilitator examples
+- TypeScript Client examples
+- Web Client examples
 
 ## Contributing
 
