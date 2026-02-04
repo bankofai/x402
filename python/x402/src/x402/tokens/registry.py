@@ -11,6 +11,7 @@ from x402.exceptions import UnknownTokenError
 @dataclass
 class TokenInfo:
     """Token information"""
+
     address: str
     decimals: int
     name: str
@@ -22,37 +23,6 @@ class TokenRegistry:
     """Token registry"""
 
     _tokens: dict[str, dict[str, TokenInfo]] = {
-        # EVM Networks
-        "eip155:1": {
-            "USDC": TokenInfo(
-                address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-                decimals=6,
-                name="USD Coin",
-                symbol="USDC",
-            ),
-            "USDT": TokenInfo(
-                address="0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                decimals=6,
-                name="Tether USD",
-                symbol="USDT",
-            ),
-        },
-        "eip155:8453": {
-            "USDC": TokenInfo(
-                address="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-                decimals=6,
-                name="USD Coin",
-                symbol="USDC",
-            ),
-        },
-        "eip155:11155111": {
-            "USDC": TokenInfo(
-                address="0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-                decimals=6,
-                name="USD Coin",
-                symbol="USDC",
-            ),
-        },
         # TRON Networks
         "tron:mainnet": {
             "USDT": TokenInfo(
@@ -60,12 +30,6 @@ class TokenRegistry:
                 decimals=6,
                 name="Tether USD",
                 symbol="USDT",
-            ),
-            "TRX": TokenInfo(
-                address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-                decimals=6,
-                name="TRON",
-                symbol="TRX",
             ),
         },
         "tron:shasta": {
@@ -75,12 +39,6 @@ class TokenRegistry:
                 name="Tether USD",
                 symbol="USDT",
             ),
-            "TRX": TokenInfo(
-                address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-                decimals=6,
-                name="TRON",
-                symbol="TRX",
-            ),
         },
         "tron:nile": {
             "USDT": TokenInfo(
@@ -89,19 +47,13 @@ class TokenRegistry:
                 name="Tether USD",
                 symbol="USDT",
             ),
-            "TRX": TokenInfo(
-                address="T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-                decimals=6,
-                name="TRON",
-                symbol="TRX",
-            ),
         },
     }
 
     @classmethod
     def get_token(cls, network: str, symbol: str) -> TokenInfo:
         """Get token information for specified network and symbol
-        
+
         Raises:
             UnknownTokenError: If token does not exist
         """
@@ -128,11 +80,11 @@ class TokenRegistry:
     @classmethod
     def parse_price(cls, price: str, network: str) -> dict[str, Any]:
         """Parse price string into asset amount
-        
+
         Args:
             price: Price string (e.g. "100 USDC")
             network: Network identifier
-            
+
         Returns:
             Dictionary containing amount, asset, decimals, etc.
         """
@@ -144,7 +96,7 @@ class TokenRegistry:
         amount = float(amount_str)
 
         token = cls.get_token(network, symbol)
-        amount_smallest = int(amount * (10 ** token.decimals))
+        amount_smallest = int(amount * (10**token.decimals))
 
         return {
             "amount": amount_smallest,
