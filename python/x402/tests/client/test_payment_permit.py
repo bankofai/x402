@@ -3,7 +3,6 @@ PaymentPermit 合约客户端测试 - Tron Nile 测试网
 核心测试: 授权 (ensure_allowance)
 """
 
-import asyncio
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -77,7 +76,9 @@ class TestClientAuthorization:
         assert call_args[0][1] == 1010000  # amount + fee
         assert call_args[0][2] == "tron:nile"  # network
 
-    async def test_allowance_amount_includes_fee(self, mock_signer, nile_requirements, permit_context):
+    async def test_allowance_amount_includes_fee(
+        self, mock_signer, nile_requirements, permit_context
+    ):
         """测试授权金额包含费用"""
         mechanism = UptoTronClientMechanism(mock_signer)
 
