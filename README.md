@@ -2,41 +2,16 @@
 
 x402-tron is a TRON implementation of the x402 payment protocol standard. It enables internet-native payments on the TRON blockchain with minimal integration effort.
 
-```python
-# Server example
-from x402.server import X402Server
-from x402.mechanisms.server import UptoTronServerMechanism
-
-server = X402Server()
-server.register_mechanism("tron:nile", UptoTronServerMechanism())
-
-@app.get("/weather")
-@server.protect(
-    accepts=[{
-        "scheme": "upto",
-        "network": "tron:nile",
-        "amount": "1000000",  # 1 USDT
-        "asset": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
-        "payTo": "TDhj8uX7SVJwvhCUrMaiQHqPgrB6wRb3eG"
-    }]
-)
-async def get_weather():
-    return {"temperature": 72, "condition": "sunny"}
-```
-
 ## Installation
 
 ### Python
 
 ```shell
-# Install with TRON support
-pip install x402-tron[tron]
+# Clone the repository
+git clone https://github.com/open-aibank/x402-tron.git
+cd x402-tron/python/x402
 
-# Install with FastAPI integration
-pip install x402-tron[fastapi]
-
-# Install all optional dependencies
-pip install x402-tron[all]
+pip install -e .[all]
 ```
 
 ### TypeScript
@@ -61,27 +36,20 @@ npm i @open-aibank/x402-tron
 
 ```python
 from fastapi import FastAPI
-from x402.server import X402Server
-from x402.mechanisms.server import UptoTronServerMechanism
-from x402.clients import FacilitatorClient
+from x402_tron.server import X402Server
+from x402_tron.fastapi import x402_protected
+from x402_tron.facilitator import FacilitatorClient
 
 app = FastAPI()
-
-# Initialize x402 server
 server = X402Server()
-server.register_mechanism("tron:nile", UptoTronServerMechanism())
-server.set_facilitator_client(FacilitatorClient("http://localhost:8001"))
+server.add_facilitator(FacilitatorClient("http://localhost:8001"))
 
-# Protect your endpoint
 @app.get("/protected")
-@server.protect(
-    accepts=[{
-        "scheme": "upto",
-        "network": "tron:nile",
-        "amount": "1000000",
-        "asset": "TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf",
-        "payTo": "YOUR_TRON_ADDRESS"
-    }]
+@x402_protected(
+    server=server,
+    price="1 USDT",
+    network="tron:nile",
+    pay_to="YOUR_TRON_ADDRESS"
 )
 async def protected_resource():
     return {"data": "secret content"}
@@ -90,16 +58,19 @@ async def protected_resource():
 ### Client (TypeScript)
 
 ```typescript
-import { X402Client } from '@x402-tron/core';
-import { UptoTronClientMechanism } from '@x402-tron/mechanism-tron';
-import { TronClientSigner } from '@x402-tron/signer-tron';
+import { X402Client, UptoTronClientMechanism, TronClientSigner } from '@open-aibank/x402-tron';
+import TronWeb from 'tronweb';
 
 // Initialize client
+const tronWeb = new TronWeb({
+  fullHost: 'https://nile.trongrid.io',
+  privateKey: 'your_private_key',
+});
+const signer = TronClientSigner.withPrivateKey(tronWeb, 'your_private_key', 'nile');
 const client = new X402Client();
-const signer = new TronClientSigner(privateKey);
 const mechanism = new UptoTronClientMechanism(signer);
 
-client.registerMechanism('tron:*', mechanism);
+client.register('tron:*', mechanism);
 
 // Make payment request
 const response = await fetch('https://api.example.com/protected');
@@ -123,9 +94,9 @@ if (response.status === 402) {
 
 ```python
 from fastapi import FastAPI
-from x402.facilitator import X402Facilitator
-from x402.mechanisms.facilitator import UptoTronFacilitatorMechanism
-from x402.signers.facilitator import TronFacilitatorSigner
+from x402_tron.facilitator import X402Facilitator
+from x402_tron.mechanisms.facilitator import UptoTronFacilitatorMechanism
+from x402_tron.signers.facilitator import TronFacilitatorSigner
 
 app = FastAPI()
 
@@ -197,7 +168,7 @@ The `upto` scheme allows payments up to a specified amount, useful for:
 ```
 x402-tron/
 ├── python/x402/              # Python SDK
-│   ├── src/x402/
+│   ├── src/x402_tron/
 │   │   ├── mechanisms/       # Payment mechanisms (client, server, facilitator)
 │   │   ├── signers/          # TIP-712 signers
 │   │   ├── clients/          # Facilitator client
@@ -206,18 +177,13 @@ x402-tron/
 │   │   ├── fastapi/          # FastAPI middleware
 │   │   └── utils/            # Utilities
 │   └── tests/
-├── typescript/packages/      # TypeScript SDK
-│   ├── core/                 # Core types and client
-│   ├── mechanisms/tron/      # TRON mechanisms
-│   ├── signers/tron/         # TRON signers
-│   └── http/                 # HTTP adapters
-├── examples/                 # Example implementations
-│   ├── python/
-│   │   ├── client/
-│   │   ├── server/
-│   │   └── facilitator/
-│   └── typescript/
-└── e2e/                      # End-to-end tests
+└── typescript/packages/      # TypeScript SDK
+    └── x402/                 # Complete SDK package
+        ├── client/           # Core client
+        ├── mechanisms/       # TRON mechanisms
+        ├── signers/          # TRON signers
+        ├── http/             # HTTP adapters
+        └── types/            # Type definitions
 ```
 
 ## Development
@@ -273,13 +239,16 @@ pnpm build
 
 ## Examples
 
-See the `examples/` directory for complete working examples:
+For complete working examples and demos, see the separate demo repository:
 
-- **Python Client**: `examples/python/client/`
-- **Python Server**: `examples/python/server/`
-- **Python Facilitator**: `examples/python/facilitator/`
-- **TypeScript Client**: `examples/typescript/client/`
-- **Web Client**: `examples/typescript/client-web/`
+**[x402-tron-demo](https://github.com/open-aibank/x402-tron-demo)**
+
+The demo repository includes:
+- Python Client examples
+- Python Server examples
+- Python Facilitator examples
+- TypeScript Client examples
+- Web Client examples
 
 ## Contributing
 

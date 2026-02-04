@@ -13,8 +13,8 @@ export const CHAIN_IDS: Record<string, number> = {
 
 /** PaymentPermit contract addresses */
 export const PAYMENT_PERMIT_ADDRESSES: Record<string, string> = {
-  'tron:mainnet': 'T...',  // TODO: Deploy
-  'tron:shasta': 'T...',   // TODO: Deploy
+  'tron:mainnet': 'TYWGPC53cD44MQW54tH11kNYxLW5eu5zGy',
+  'tron:shasta': 'TFiMDs3KeDiwcB5rRBqFHYaNHFZGxEJ89U',
   'tron:nile': 'TCR6EaRtLRYjWPr7YWHqt4uL81rfevtE8p',
 };
 
