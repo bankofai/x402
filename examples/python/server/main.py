@@ -50,7 +50,12 @@ app.add_middleware(
 PAY_TO_ADDRESS = os.getenv("PAY_TO_ADDRESS")
 if not PAY_TO_ADDRESS:
     raise ValueError("PAY_TO_ADDRESS environment variable is required")
-# Hardcoded server configuration
+
+# Network selection - Change this to use different networks
+# Options: NetworkConfig.TRON_MAINNET, NetworkConfig.TRON_NILE, NetworkConfig.TRON_SHASTA
+CURRENT_NETWORK = NetworkConfig.TRON_NILE
+
+# Server configuration
 FACILITATOR_URL = "http://localhost:8001"
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8000
@@ -67,21 +72,27 @@ server = X402Server()
 facilitator = FacilitatorClient(base_url=FACILITATOR_URL)
 server.add_facilitator(facilitator)
 
-print(f"Server Configuration:")
-print(f"  Network: {NetworkConfig.TRON_NILE}")
-print(f"  Pay To: {PAY_TO_ADDRESS}")
-print(f"  Facilitator URL: {FACILITATOR_URL}")
+print("=" * 80)
+print("X402 Protected Resource Server - Configuration")
+print("=" * 80)
+print(f"Current Network: {CURRENT_NETWORK}")
+print(f"Pay To Address: {PAY_TO_ADDRESS}")
+print(f"Facilitator URL: {FACILITATOR_URL}")
+print(f"PaymentPermit Contract: {NetworkConfig.get_payment_permit_address(CURRENT_NETWORK)}")
 
 registered_networks = sorted(server._mechanisms.keys())
-print("\nRegistered networks and tokens:")
+print(f"\nAll Registered Networks ({len(registered_networks)}):")
 for net in registered_networks:
     tokens = TokenRegistry.get_network_tokens(net)
-    print(f"  {net}:")
+    is_current = " (CURRENT)" if net == CURRENT_NETWORK else ""
+    print(f"  {net}{is_current}:")
     if not tokens:
-        print("    (no tokens)")
+        print("    (no tokens registered)")
         continue
     for symbol, info in tokens.items():
         print(f"    {symbol}: {info.address} (decimals={info.decimals})")
+print("=" * 80)
+
 
 @app.get("/")
 async def root():
@@ -96,8 +107,10 @@ async def root():
 @app.get("/protected")
 @x402_protected(
     server=server,
-    price="1 USDT",  # 1 USDT = 1000000 (6 decimals)
-    network=NetworkConfig.TRON_NILE,
+    price="1 USDT",  # Price format: "<amount> <token_symbol>"
+                     # Currently only USDT is supported
+                     # Token must be registered in TokenRegistry for the network
+    network=CURRENT_NETWORK,  # Uses the network configured above
     pay_to=PAY_TO_ADDRESS,
 )
 async def protected_endpoint(request: Request):

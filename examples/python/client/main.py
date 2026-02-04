@@ -7,8 +7,10 @@ import httpx
 import logging
 
 from x402_tron.clients import X402Client, X402HttpClient
+from x402_tron.config import NetworkConfig
 from x402_tron.mechanisms.client import UptoTronClientMechanism
 from x402_tron.signers.client import TronClientSigner
+from x402_tron.tokens import TokenRegistry
 
 # Enable detailed logging
 logging.basicConfig(
@@ -19,12 +21,16 @@ logging.basicConfig(
 load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
 TRON_PRIVATE_KEY = os.getenv("TRON_PRIVATE_KEY", "")
-# Hardcoded network configuration
-TRON_NETWORK = "tron:nile"
-# Hardcoded server configuration
+
+# Network selection - Change this to use different networks
+# Options: NetworkConfig.TRON_MAINNET, NetworkConfig.TRON_NILE, NetworkConfig.TRON_SHASTA
+CURRENT_NETWORK = NetworkConfig.TRON_NILE
+
+# Server configuration
 RESOURCE_SERVER_URL = "http://localhost:8000"
 ENDPOINT_PATH = "/protected"
 RESOURCE_URL = RESOURCE_SERVER_URL + ENDPOINT_PATH
+
 
 if not TRON_PRIVATE_KEY:
     print("\n❌ Error: TRON_PRIVATE_KEY not set in .env file")
@@ -32,19 +38,32 @@ if not TRON_PRIVATE_KEY:
     exit(1)
 
 async def main():
-    # 设置客户端
-    # 传入 network 以便自动处理授权，使用 nile 网络
-    network = TRON_NETWORK.split(":")[-1]  # Extract network name (e.g., "nile")
-    print(f"Initializing X402 client...")
-    print(f"  Network: {TRON_NETWORK}")
-    print(f"  Resource: {RESOURCE_URL}")
+    # Setup client with TRON signer
+    network = CURRENT_NETWORK.split(":")[-1]  # Extract network name (e.g., "nile")
+    
+    print("=" * 80)
+    print("X402 Payment Client - Configuration")
+    print("=" * 80)
     
     signer = TronClientSigner.from_private_key(TRON_PRIVATE_KEY, network=network)
-    print(f"  Client Address: {signer.get_address()}")
+    print(f"Current Network: {CURRENT_NETWORK}")
+    print(f"Client Address: {signer.get_address()}")
+    print(f"Resource URL: {RESOURCE_URL}")
+    print(f"PaymentPermit Contract: {NetworkConfig.get_payment_permit_address(CURRENT_NETWORK)}")
     
-    registered_network = TRON_NETWORK
-    x402_client = X402Client().register(registered_network, UptoTronClientMechanism(signer))
-    print(f"  Registered mechanism: {registered_network}")
+    x402_client = X402Client().register(CURRENT_NETWORK, UptoTronClientMechanism(signer))
+    
+    print(f"\nSupported Networks and Tokens:")
+    for network_name in ["tron:mainnet", "tron:nile", "tron:shasta"]:
+        tokens = TokenRegistry.get_network_tokens(network_name)
+        is_current = " (CURRENT)" if network_name == CURRENT_NETWORK else ""
+        print(f"  {network_name}{is_current}:")
+        if not tokens:
+            print("    (no tokens registered)")
+        else:
+            for symbol, info in tokens.items():
+                print(f"    {symbol}: {info.address} (decimals={info.decimals})")
+    print("=" * 80)
     
     async with httpx.AsyncClient(timeout=60.0) as http_client:
         client = X402HttpClient(http_client, x402_client)

@@ -58,11 +58,17 @@ load_dotenv(Path(__file__).parent.parent.parent.parent / ".env")
 
 # Configuration
 TRON_PRIVATE_KEY = os.getenv("TRON_PRIVATE_KEY", "")
-TRON_NETWORK = "nile"  # Hardcoded network
-# Hardcoded facilitator configuration
+
+# Network selection - Change this to use different networks
+# Options: "mainnet", "nile", "shasta"
+TRON_NETWORK = "nile"
+CURRENT_NETWORK = f"tron:{TRON_NETWORK}"
+
+# Facilitator configuration
 FACILITATOR_HOST = "0.0.0.0"
 FACILITATOR_PORT = 8001
-BASE_FEE = 1_000_000  # 1 USDT (6 decimals)
+BASE_FEE = 1_000_000  # 1 USDT (6 decimals) - Fee charged per transaction
+
 
 if not TRON_PRIVATE_KEY:
     raise ValueError("TRON_PRIVATE_KEY environment variable is required")
@@ -95,20 +101,25 @@ facilitator_mechanism = UptoTronFacilitatorMechanism(
     base_fee=BASE_FEE,
 )
 
-print(f"Facilitator initialized:")
-print(f"  Address: {facilitator_address}")
-print(f"  Network: {TRON_NETWORK}")
-print(f"  Base Fee: {BASE_FEE}")
+print("=" * 80)
+print("X402 Payment Facilitator - Configuration")
+print("=" * 80)
+print(f"Current Network: {CURRENT_NETWORK}")
+print(f"Facilitator Address: {facilitator_address}")
+print(f"Base Fee: {BASE_FEE} (1 USDT)")
+print(f"PaymentPermit Contract: {NetworkConfig.get_payment_permit_address(CURRENT_NETWORK)}")
 
-registered_network = f"tron:{TRON_NETWORK}"
-print("\nRegistered network and tokens:")
-tokens = TokenRegistry.get_network_tokens(registered_network)
-print(f"  {registered_network}:")
-if not tokens:
-    print("    (no tokens)")
-else:
-    for symbol, info in tokens.items():
-        print(f"    {symbol}: {info.address} (decimals={info.decimals})")
+print(f"\nSupported Networks and Tokens:")
+for network in ["tron:mainnet", "tron:nile", "tron:shasta"]:
+    tokens = TokenRegistry.get_network_tokens(network)
+    is_current = " (CURRENT)" if network == CURRENT_NETWORK else ""
+    print(f"  {network}{is_current}:")
+    if not tokens:
+        print("    (no tokens registered)")
+    else:
+        for symbol, info in tokens.items():
+            print(f"    {symbol}: {info.address} (decimals={info.decimals})")
+print("=" * 80)
 
 
 @app.get("/")
