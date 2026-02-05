@@ -28,6 +28,7 @@ class FacilitatorClient:
         base_url: str,
         headers: dict[str, str] | None = None,
         facilitator_id: str | None = None,
+        facilitator_address: str | None = None,
     ) -> None:
         """
         Initialize facilitator client.
@@ -36,10 +37,12 @@ class FacilitatorClient:
             base_url: Facilitator service base URL
             headers: Custom HTTP headers (e.g., Authorization)
             facilitator_id: Unique identifier for this facilitator
+            facilitator_address: Facilitator's on-chain address (for permit caller field)
         """
         self._base_url = base_url.rstrip("/")
         self._headers = headers or {}
         self.facilitator_id = facilitator_id or base_url
+        self.facilitator_address = facilitator_address
         self._http_client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:

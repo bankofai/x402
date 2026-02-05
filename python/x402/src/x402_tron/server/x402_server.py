@@ -168,6 +168,7 @@ class X402Server:
         nonce: str | None = None,
         valid_after: int | None = None,
         valid_before: int | None = None,
+        caller: str | None = None,
     ) -> PaymentRequired:
         """Create 402 Payment Required response.
 
@@ -178,6 +179,7 @@ class X402Server:
             nonce: Idempotency nonce
             valid_after: Valid from timestamp
             valid_before: Valid until timestamp
+            caller: Caller address (facilitator address that will execute the permit)
 
         Returns:
             PaymentRequired response
@@ -188,6 +190,12 @@ class X402Server:
         from x402_tron.utils import generate_payment_id
 
         now = int(time.time())
+        
+        # Get caller (facilitator address) from first facilitator if not provided
+        effective_caller = caller
+        if effective_caller is None and self._facilitators:
+            effective_caller = self._facilitators[0].facilitator_address
+        
         extensions = PaymentRequiredExtensions(
             paymentPermitContext=PaymentPermitContext(
                 meta=PaymentPermitContextMeta(
@@ -197,6 +205,7 @@ class X402Server:
                     validAfter=valid_after or now,
                     validBefore=valid_before or (now + 3600),
                 ),
+                caller=effective_caller,
                 delivery=PaymentPermitContextDelivery(
                     receiveToken=TRON_ZERO_ADDRESS,
                     miniReceiveAmount="0",
