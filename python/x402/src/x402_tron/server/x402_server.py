@@ -150,7 +150,7 @@ class X402Server:
             facilitator = self._facilitators[0]
             # Fetch and cache facilitator address for use in create_payment_required_response
             await facilitator.fetch_facilitator_address()
-            
+
             # Only get fee quote if facilitator charges fees
             supported = await facilitator.supported()
             if supported.fee:
@@ -196,7 +196,7 @@ class X402Server:
         from x402_tron.utils import generate_payment_id
 
         now = int(time.time())
-        
+
         # Get caller (facilitator address) from first facilitator if not provided
         effective_caller = caller
         if effective_caller is None and self._facilitators:
@@ -205,7 +205,7 @@ class X402Server:
             import logging
             logger = logging.getLogger(__name__)
             logger.info(f"[CALLER] Setting caller from facilitator: {effective_caller}")
-        
+
         extensions = PaymentRequiredExtensions(
             paymentPermitContext=PaymentPermitContext(
                 meta=PaymentPermitContextMeta(
