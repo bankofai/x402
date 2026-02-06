@@ -32,7 +32,11 @@ def create_async_tron_client(network: str) -> Any:
     if api_key and conf:
         endpoint_uri = conf["fullnode"]
         provider = AsyncHTTPProvider(endpoint_uri=endpoint_uri, api_key=api_key)
-        logger.info(f"Creating AsyncTron client with TronGrid API key for network={network} ({endpoint_uri})")
+        logger.info(
+            "Creating AsyncTron client with TronGrid API key for network=%s (%s)",
+            network,
+            endpoint_uri,
+        )
         return AsyncTron(provider=provider, network=network)
 
     if not api_key:
