@@ -1,115 +1,138 @@
 # x402-tron
 
-x402-tron is a TRON implementation of the x402 payment protocol standard. It enables internet-native payments on the TRON blockchain with minimal integration effort.
+x402-tron is the TRON blockchain implementation of the **x402 open payment standard**. It turns the HTTP `402 Payment Required` status code into a programmable, accountless payment layer for APIs, digital content, and AI agents.
+
+by leveraging TRON's high speed and low fees, x402-tron enables friction-free, machine-to-machine commerce without API keys, subscriptions, or sign-ups.
+
+---
+
+**[📚 Full Documentation](https://x402-tron-docs.aibank.io/)** | **[💻 Demo Repository](https://github.com/open-aibank/x402-tron-demo)**
+
+---
+
+## Features
+
+- **Protocol Native**: Restores the HTTP `402` status code to its intended purpose.
+- **AI Ready**: First-class support for AI Agents via specialized x402 skills.
+- **Trust Minimized**: Uses TRON's **TIP-712** structured data signing. Facilitators cannot modify payment terms.
+- **Stateless & Accountless**: No user accounts or session management required. Payments are verified per request.
+- **Framework Integrations**: 
+    - **Python**: FastAPI, Flask, httpx
+    - **TypeScript**: Native fetch, Node.js
+- **Broad Network Support**: TRON Mainnet, Nile (Testnet), and Shasta.
 
 ## Installation
 
 ### Python
+The Python SDK includes support for Server (FastAPI/Flask), Client, and Facilitator.
 
-```shell
+```bash
 # Clone the repository
 git clone https://github.com/open-aibank/x402-tron.git
 cd x402-tron/python/x402
 
+# Install with all dependencies
 pip install -e .[all]
 ```
 
 ### TypeScript
+The TypeScript SDK provides client-side integration tools.
 
-```shell
-npm i @open-aibank/x402-tron
+```bash
+npm install @open-aibank/x402-tron
 ```
 
-## Features
+## AI Agent Integration
 
-- **TRON Native**: Built specifically for TRON blockchain (Mainnet, Shasta, Nile)
-- **Multiple Payment Schemes**: Support for `exact` payment scheme with extensibility for more
-- **Easy Integration**: One-line server protection, simple client SDK
-- **FastAPI & Flask Support**: Ready-to-use middleware for popular Python frameworks
-- **TypeScript Support**: Full TypeScript SDK for client-side integration
-- **Trust Minimizing**: Facilitator cannot move funds outside client intentions
-- **EIP-712 Compatible**: Uses TRON's TIP-712 for secure message signing
+x402-tron is designed for the Agentic Web. AI agents can autonomously negotiate and pay for resources using the [**tron_x402_payment**](https://github.com/open-aibank/openclaw-extension/tree/main/skills/tron_x402_payment) skill.
+
+This skill enables agents to:
+
+1. Detect `402 Payment Required` responses.
+2. Sign TIP-712 payment authorizations automatically.
+3. Manage wallet balances and handle the challenge-response loop.
 
 ## Quick Start
 
-### Server (Python)
+### 1. Facilitator
+The Facilitator is responsible for verifying TIP-712 signatures and executing on-chain settlements.
+
+- **Self-Hosted**: Developers currently need to deploy their own facilitator instance. Detailed deployment instructions can be found in the [**demo repository quick start**](https://github.com/open-aibank/x402-tron-demo/tree/main?tab=readme-ov-file#quick-start).
+- **Official Facilitator**: An official, hosted facilitator service is **coming soon**, which will eliminate the need for server-side blockchain infrastructure.
+
+### 2. Server (Seller)
+Protect your FastAPI endpoints with a single decorator.
 
 ```python
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from x402_tron.server import X402Server
 from x402_tron.fastapi import x402_protected
 from x402_tron.facilitator import FacilitatorClient
 
 app = FastAPI()
 server = X402Server()
+# Use a local or hosted facilitator
 server.add_facilitator(FacilitatorClient("http://localhost:8001"))
 
 @app.get("/protected")
 @x402_protected(
     server=server,
-    price="1 USDT",
-    network="tron:nile",
-    pay_to="YOUR_TRON_ADDRESS"
+    price="1 USDT",       # Supports USDT, USDD, and custom tokens
+    network="tron:nile",  # Recommended for testing
+    pay_to="<YOUR_WALLET_ADDRESS>"
 )
-async def protected_resource():
-    return {"data": "secret content"}
+async def protected_resource(request: Request):
+    return {"data": "This content was paid for with USDT on TRON"}
 ```
 
-### Client (TypeScript)
+### 3. Client (Buyer)
+Clients handle the `402` challenge-response loop automatically using the SDK.
 
+**TypeScript Example:**
 ```typescript
-import { X402Client, ExactTronClientMechanism, TronClientSigner } from '@open-aibank/x402-tron';
-import TronWeb from 'tronweb';
+import { X402Client, X402FetchClient, ExactTronClientMechanism, TronClientSigner } from '@open-aibank/x402-tron';
+import { TronWeb } from 'tronweb';
 
-// Initialize client
-const tronWeb = new TronWeb({
-  fullHost: 'https://nile.trongrid.io',
-  privateKey: 'your_private_key',
-});
-const signer = TronClientSigner.withPrivateKey(tronWeb, 'your_private_key', 'nile');
-const client = new X402Client();
-const mechanism = new ExactTronClientMechanism(signer);
+// Setup TronWeb and Signer
+const tronWeb = new TronWeb({ fullHost: 'https://nile.trongrid.io', privateKey: '...' });
+const signer = TronClientSigner.withPrivateKey(tronWeb, '...', 'nile');
 
-client.register('tron:*', mechanism);
+// Register Mechanism and create Fetch Client
+const x402Client = new X402Client();
+x402Client.register('tron:*', new ExactTronClientMechanism(signer));
+const client = new X402FetchClient(x402Client);
 
-// Make payment request
-const response = await fetch('https://api.example.com/protected');
-if (response.status === 402) {
-    const paymentRequired = await response.json();
-    const payload = await client.createPaymentPayload(
-        paymentRequired.accepts[0],
-        '/protected'
-    );
-    
-    // Retry with payment
-    const paidResponse = await fetch('https://api.example.com/protected', {
-        headers: {
-            'PAYMENT-SIGNATURE': btoa(JSON.stringify(payload))
-        }
-    });
-}
+// The SDK handles the 402 flow automatically
+// If you don't want to deploy a facilitator and server, you can use the official demo service: https://x402-tron-demo.aibank.io/protected-nile
+// Ensure your account has USDT and a small amount of TRX for the initial approval gas fee.
+const response = await client.get('http://localhost:8000/protected');
+const data = await response.json();
 ```
 
-### Facilitator (Python)
+### 4. Agent (Buyer)
+AI agents can handle x402 payments autonomously by using the specialized payment skill.
 
-```python
-from fastapi import FastAPI
-from x402_tron.facilitator import X402Facilitator
-from x402_tron.mechanisms.facilitator import ExactTronFacilitatorMechanism
-from x402_tron.signers.facilitator import TronFacilitatorSigner
+**Configuration:**
+Set your wallet credentials in the environment. The `TRON_GRID_API_KEY` is recommended to avoid rate limits on TRON RPC nodes.
 
-app = FastAPI()
-
-# Initialize facilitator
-facilitator = X402Facilitator()
-signer = TronFacilitatorSigner(private_key="YOUR_PRIVATE_KEY")
-mechanism = ExactTronFacilitatorMechanism(signer=signer)
-
-facilitator.register_mechanism("tron:nile", mechanism)
-
-# Mount facilitator endpoints
-app.include_router(facilitator.create_router(), prefix="")
+```bash
+# Set your wallet and network credentials
+export TRON_PRIVATE_KEY="your_private_key_here"
+export TRON_GRID_API_KEY="your_trongrid_api_key_here"  # Recommended
 ```
+
+**Using with Agentic Tools:**
+You can add the [**tron_x402_payment**](https://github.com/open-aibank/openclaw-extension/tree/main/skills/tron_x402_payment) skill to your favorite agentic tools:
+
+- **OpenClaw**: `npx clawhub install tron-x402-payment`
+- **opencode**: Copy the skill to your project's `.opencode/skill/` directory to enable autonomous TRON payments.
+
+Once configured, your agent will:
+1. Automatically detect when an API requires payment (`402`).
+2. Negotiate terms and sign authorizations using the provided wallet.
+3. Manage gas (TRX) and token (USDT/USDD) balances to ensure smooth operation.
+
+**Try it out:** Tell your Agent to visit `https://x402-tron-demo.aibank.io/protected-nile`. The Agent will automatically complete the x402 payment and return the resource.
 
 ## Architecture
 
@@ -148,135 +171,55 @@ sequenceDiagram
     Server->>Client: 200 Ok<br/>PAYMENT-RESPONSE<br/>Content
 ```
 
-## Supported Networks
+## Supported Networks & Assets
 
-- **TRON Mainnet** (`tron:mainnet`)
-- **TRON Shasta Testnet** (`tron:shasta`)
-- **TRON Nile Testnet** (`tron:nile`)
+x402-tron supports TRC-20 tokens. Custom tokens can be registered via the `TokenRegistry`.
 
-## Supported Schemes
+| Network | ID | Status | Recommended For |
+|---------|----|--------|-----------------|
+| **TRON Nile** | `tron:nile` | Testnet | **Development & Testing** |
+| **TRON Shasta** | `tron:shasta` | Testnet | Alternative Testing |
+| **TRON Mainnet** | `tron:mainnet` | Mainnet | Production |
 
-### Exact Scheme
-
-The `exact` scheme allows payments for a specified exact amount, useful for:
-- Pay-per-use APIs (LLM token generation, data processing)
-- Fixed-price resources
-- Predictable pricing for API calls
-
-## Project Structure
-
-```
-x402-tron/
-├── python/x402/              # Python SDK
-│   ├── src/x402_tron/
-│   │   ├── mechanisms/       # Payment mechanisms (client, server, facilitator)
-│   │   ├── signers/          # TIP-712 signers
-│   │   ├── clients/          # Facilitator client
-│   │   ├── server/           # Resource server
-│   │   ├── facilitator/      # Facilitator server
-│   │   ├── fastapi/          # FastAPI middleware
-│   │   └── utils/            # Utilities
-│   └── tests/
-└── typescript/packages/      # TypeScript SDK
-    └── x402/                 # Complete SDK package
-        ├── client/           # Core client
-        ├── mechanisms/       # TRON mechanisms
-        ├── signers/          # TRON signers
-        ├── http/             # HTTP adapters
-        └── types/            # Type definitions
-```
+**Supported Tokens:**
+- **USDT** (Tether)
+- **USDD** (Decentralized USD)
 
 ## Development
 
 ### Prerequisites
-
 - Python 3.10+
 - Node.js 18+
-- pnpm
+- A TRON Wallet (e.g., TronLink) with TRX for gas/energy.
 
-### Setup
+### Configuration
+Environment variables for development:
+- `TRON_GRID_API_KEY`: Recommended for higher RPC limits.
+- `TRON_PRIVATE_KEY`: Required for signing operations (Client/Facilitator).
 
+### Testing
 ```bash
-# Install Python dependencies
-cd python/x402
-pip install -e .[dev]
+# Run Python tests
+cd python/x402 && pytest
 
-# Install TypeScript dependencies
-cd typescript
-pnpm install
-pnpm build
+# Run TypeScript tests
+cd typescript && pnpm test
 ```
 
-### Running Tests
+## Security & Risk
 
-```bash
-# Python tests
-cd python/x402
-pytest
-
-# TypeScript tests
-cd typescript
-pnpm test
-
-# End-to-end tests
-cd e2e
-pytest
-```
-
-### Code Quality
-
-```bash
-# Python formatting
-ruff format .
-
-# Python linting
-ruff check .
-
-# TypeScript build
-cd typescript
-pnpm build
-```
-
-## Examples
-
-For complete working examples and demos, see the separate demo repository:
-
-**[x402-tron-demo](https://github.com/open-aibank/x402-tron-demo)**
-
-The demo repository includes:
-- Python Client examples
-- Python Server examples
-- Python Facilitator examples
-- TypeScript Client examples
-- Web Client examples
+> [!WARNING]
+> **Use at your own risk.** Handling private keys involves significant risk of asset loss.
+>
+> - **Never commit secrets**: Do not hardcode private keys or commit `.env` files to version control.
+> - **Wallet Isolation**: Use dedicated wallets for development with only necessary funds.
+> - **Environment Variables**: Always use environment variables or secure vaults to manage sensitive credentials.
+> - **Protocol Status**: x402-tron is in active development. Ensure you test thoroughly on Nile or Shasta testnets before any mainnet deployment.
 
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-### Adding New Features
-
-- Payment schemes must be trust-minimizing
-- All changes must include tests
-- Follow existing code style and naming conventions
-- Update documentation
-
-## Security
-
-- Never commit private keys or seed phrases
-- Use environment variables for sensitive data
-- All payments use TIP-712 signed messages
-- Facilitator cannot move funds without client authorization
-
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details
-
-## Resources
-
-- [TRON Documentation](https://developers.tron.network/)
-- [TIP-712 Specification](https://github.com/tronprotocol/tips/blob/master/tip-712.md)
-
-## Acknowledgments
-
-This project is an implementation of the x402 payment protocol standard for the TRON blockchain. The x402 standard is an open protocol for internet-native payments.
+MIT License - see [LICENSE](./LICENSE) for details.
