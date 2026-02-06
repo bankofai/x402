@@ -54,7 +54,13 @@ This skill enables agents to:
 
 ## Quick Start
 
-### 1. Server (Seller)
+### 1. Facilitator
+The Facilitator is responsible for verifying TIP-712 signatures and executing on-chain settlements.
+
+- **Self-Hosted**: Developers currently need to deploy their own facilitator instance. Detailed deployment instructions can be found in the [**demo repository quick start**](https://github.com/open-aibank/x402-tron-demo/tree/main?tab=readme-ov-file#quick-start).
+- **Official Facilitator**: An official, hosted facilitator service is **coming soon**, which will eliminate the need for server-side blockchain infrastructure.
+
+### 2. Server (Seller)
 Protect your FastAPI endpoints with a single decorator.
 
 ```python
@@ -79,7 +85,7 @@ async def protected_resource(request: Request):
     return {"data": "This content was paid for with USDT on TRON"}
 ```
 
-### 2. Client (Buyer)
+### 3. Client (Buyer)
 Clients handle the `402` challenge-response loop automatically using the SDK.
 
 **TypeScript Example:**
@@ -97,11 +103,13 @@ x402Client.register('tron:*', new ExactTronClientMechanism(signer));
 const client = new X402FetchClient(x402Client);
 
 // The SDK handles the 402 flow automatically
-const response = await client.get('https://api.example.com/protected');
+// If you don't want to deploy a facilitator and server, you can use the official demo service: https://x402-tron-demo.aibank.io/protected-nile
+// Ensure your account has USDT and a small amount of TRX for the initial approval gas fee.
+const response = await client.get('http://localhost:8000/protected');
 const data = await response.json();
 ```
 
-### 3. Agent (Buyer)
+### 4. Agent (Buyer)
 AI agents can handle x402 payments autonomously by using the specialized payment skill.
 
 **Configuration:**
@@ -124,11 +132,7 @@ Once configured, your agent will:
 2. Negotiate terms and sign authorizations using the provided wallet.
 3. Manage gas (TRX) and token (USDT/USDD) balances to ensure smooth operation.
 
-### 4. Facilitator
-The Facilitator is responsible for verifying TIP-712 signatures and executing on-chain settlements.
-
-- **Self-Hosted**: Developers currently need to deploy their own facilitator instance using the Python SDK.
-- **Official Facilitator**: An official, hosted facilitator service is **coming soon**, which will eliminate the need for server-side blockchain infrastructure.
+**Try it out:** Tell your Agent to visit `https://x402-tron-demo.aibank.io/protected-nile`. The Agent will automatically complete the x402 payment and return the resource.
 
 ## Architecture
 
