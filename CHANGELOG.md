@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2026-02-06
+
+### Fixed
+- TronGrid provider now respects `network` (correct endpoint per mainnet/nile/shasta)
+
 ## [0.1.5] - 2026-02-05
 
 ### Added
@@ -27,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed all linting and formatting issues
 - Fixed test imports to use new mechanism names
 
+[0.1.6]: https://github.com/open-aibank/x402-tron/releases/tag/v0.1.6
 [0.1.5]: https://github.com/open-aibank/x402-tron/releases/tag/v0.1.5
 
 ## [0.1.4] - 2026-02-05
