@@ -114,9 +114,7 @@ class TestFacilitatorSettle:
         assert result.error_reason == "transaction_failed"
 
     @pytest.mark.anyio
-    async def test_settle_fee_amount_mismatch(
-        self, mock_signer, valid_payload, nile_requirements
-    ):
+    async def test_settle_fee_amount_mismatch(self, mock_signer, valid_payload, nile_requirements):
         valid_payload.payload.payment_permit.fee.fee_amount = "0"
         mechanism = ExactTronFacilitatorMechanism(mock_signer)
 
@@ -126,9 +124,7 @@ class TestFacilitatorSettle:
         assert result.error_reason == "fee_amount_mismatch"
 
     @pytest.mark.anyio
-    async def test_settle_fee_to_mismatch(
-        self, mock_signer, valid_payload, nile_requirements
-    ):
+    async def test_settle_fee_to_mismatch(self, mock_signer, valid_payload, nile_requirements):
         valid_payload.payload.payment_permit.fee.fee_to = "TWrongAddress"
         mechanism = ExactTronFacilitatorMechanism(mock_signer)
 
