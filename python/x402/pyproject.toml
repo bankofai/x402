@@ -54,9 +54,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/open-aibank/x402-tron"
-Documentation = "https://github.com/open-aibank/x402-tron#readme"
-Repository = "https://github.com/open-aibank/x402-tron"
+Homepage = "https://github.com/bankofai/x402-tron"
+Documentation = "https://github.com/bankofai/x402-tron#readme"
+Repository = "https://github.com/bankofai/x402-tron"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/x402_tron"]

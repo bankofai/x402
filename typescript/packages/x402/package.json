@@ -1,5 +1,5 @@
 {
-  "name": "@open-aibank/x402-tron",
+  "name": "@bankofai/x402-tron",
   "version": "0.1.6",
   "description": "x402-tron TypeScript SDK (TRON-only)",
   "keywords": [
@@ -10,13 +10,13 @@
     "payment",
     "blockchain"
   ],
-  "homepage": "https://github.com/open-aibank/x402-tron#readme",
+  "homepage": "https://github.com/bankofai/x402-tron#readme",
   "bugs": {
-    "url": "https://github.com/open-aibank/x402-tron/issues"
+    "url": "https://github.com/bankofai/x402-tron/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-aibank/x402-tron.git",
+    "url": "git+https://github.com/bankofai/x402-tron.git",
     "directory": "typescript/packages/x402"
   },
   "engines": {

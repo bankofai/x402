@@ -6,7 +6,7 @@ by leveraging TRON's high speed and low fees, x402-tron enables friction-free, m
 
 ---
 
-**[📚 Full Documentation](https://x402-tron-docs.aibank.io/)** | **[💻 Demo Repository](https://github.com/open-aibank/x402-tron-demo)**
+**[📚 Full Documentation](https://x402-tron-docs.bankofai.io/)** | **[💻 Demo Repository](https://github.com/bankofai/x402-tron-demo)**
 
 ---
 
@@ -28,7 +28,7 @@ The Python SDK includes support for Server (FastAPI/Flask), Client, and Facilita
 
 ```bash
 # Clone the repository
-git clone https://github.com/open-aibank/x402-tron.git
+git clone https://github.com/bankofai/x402-tron.git
 cd x402-tron/python/x402
 
 # Install with all dependencies
@@ -39,7 +39,7 @@ pip install -e .[all]
 The TypeScript SDK provides client-side integration tools.
 
 ```bash
-npm install @open-aibank/x402-tron
+npm install @bankofai/x402-tron
 ```
 
 ## AI Agent Integration
@@ -57,7 +57,7 @@ This skill enables agents to:
 ### 1. Facilitator
 The Facilitator is responsible for verifying TIP-712 signatures and executing on-chain settlements.
 
-- **Self-Hosted**: Developers currently need to deploy their own facilitator instance. Detailed deployment instructions can be found in the [**demo repository quick start**](https://github.com/open-aibank/x402-tron-demo/tree/main?tab=readme-ov-file#quick-start).
+- **Self-Hosted**: Developers currently need to deploy their own facilitator instance. Detailed deployment instructions can be found in the [**demo repository quick start**](https://github.com/bankofai/x402-tron-demo/tree/main?tab=readme-ov-file#quick-start).
 - **Official Facilitator**: An official, hosted facilitator service is **coming soon**, which will eliminate the need for server-side blockchain infrastructure.
 
 ### 2. Server (Seller)
@@ -90,7 +90,7 @@ Clients handle the `402` challenge-response loop automatically using the SDK.
 
 **TypeScript Example:**
 ```typescript
-import { X402Client, X402FetchClient, ExactTronClientMechanism, TronClientSigner } from '@open-aibank/x402-tron';
+import { X402Client, X402FetchClient, ExactTronClientMechanism, TronClientSigner } from '@bankofai/x402-tron';
 import { TronWeb } from 'tronweb';
 
 // Setup TronWeb and Signer
@@ -103,7 +103,7 @@ x402Client.register('tron:*', new ExactTronClientMechanism(signer));
 const client = new X402FetchClient(x402Client);
 
 // The SDK handles the 402 flow automatically
-// If you don't want to deploy a facilitator and server, you can use the official demo service: https://x402-tron-demo.aibank.io/protected-nile
+// If you don't want to deploy a facilitator and server, you can use the official demo service: https://x402-tron-demo.bankofai.io/protected-nile
 // Ensure your account has USDT and a small amount of TRX for the initial approval gas fee.
 const response = await client.get('http://localhost:8000/protected');
 const data = await response.json();
@@ -132,7 +132,7 @@ Once configured, your agent will:
 2. Negotiate terms and sign authorizations using the provided wallet.
 3. Manage gas (TRX) and token (USDT/USDD) balances to ensure smooth operation.
 
-**Try it out:** Tell your Agent to visit `https://x402-tron-demo.aibank.io/protected-nile`. The Agent will automatically complete the x402 payment and return the resource.
+**Try it out:** Tell your Agent to visit `https://x402-tron-demo.bankofai.io/protected-nile`. The Agent will automatically complete the x402 payment and return the resource.
 
 ## Architecture
 
