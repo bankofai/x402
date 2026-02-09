@@ -22,4 +22,7 @@ export * from './mechanisms/exact.js';
 
 // TRON Signer
 export * from './signers/signer.js';
+export { AgentWalletClientSigner } from './signers/agentWalletSigner.js';
+export { TronProviderAdapter } from './signers/adapter.js';
+export type { KeyProvider } from './signers/keyProvider.js';
 export type { TronWeb, TypedDataDomain, TypedDataField, TronNetwork, TRON_CHAIN_IDS } from './signers/types.js';

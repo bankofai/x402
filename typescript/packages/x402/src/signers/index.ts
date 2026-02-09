@@ -3,6 +3,9 @@
  */
 
 export { TronClientSigner } from './signer.js';
+export { AgentWalletClientSigner } from './agentWalletSigner.js';
+export { TronProviderAdapter } from './adapter.js';
+export type { KeyProvider } from './keyProvider.js';
 export type {
   TronWeb,
   TypedDataDomain,
