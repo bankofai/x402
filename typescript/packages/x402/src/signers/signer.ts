@@ -45,11 +45,13 @@ export class TronClientSigner implements ClientSigner {
    * Create signer from TronWeb instance (browser wallet mode)
    */
   static fromTronWeb(tronWeb: TronWeb, network?: TronNetwork): TronClientSigner {
+    console.log(`[TronClientSigner.fromTronWeb] network=${network}`);
     const privateKey = tronWeb.defaultPrivateKey;
     if (!privateKey) {
       throw new SignatureCreationError('TronWeb instance must have a default private key or be connected to a wallet');
     }
     const address = tronWeb.address.fromPrivateKey(privateKey);
+    console.log(`[TronClientSigner.fromTronWeb] address=${address}`);
     return new TronClientSigner(tronWeb, address, network);
   }
 
@@ -61,8 +63,10 @@ export class TronClientSigner implements ClientSigner {
     privateKey: string,
     network?: TronNetwork
   ): TronClientSigner {
+    console.log(`[TronClientSigner.withPrivateKey] network=${network}`);
     const cleanKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
     const address = tronWeb.address.fromPrivateKey(cleanKey);
+    console.log(`[TronClientSigner.withPrivateKey] address=${address}`);
     return new TronClientSigner(tronWeb, address, network, cleanKey);
   }
 
@@ -89,6 +93,10 @@ export class TronClientSigner implements ClientSigner {
     types: Record<string, unknown>,
     message: Record<string, unknown>
   ): Promise<string> {
+    console.log(`[TronClientSigner.signTypedData] domain=${JSON.stringify(domain)}`);
+    console.log(`[TronClientSigner.signTypedData] types=${JSON.stringify(types)}`);
+    console.log(`[TronClientSigner.signTypedData] message=${JSON.stringify(message)}`);
+
     // Prepare domain
     const typedDomain: TypedDataDomain = {
       name: domain.name as string,
@@ -102,23 +110,30 @@ export class TronClientSigner implements ClientSigner {
       throw new SignatureCreationError('TronWeb does not support signTypedData. Please upgrade to TronWeb >= 5.0');
     }
 
-    return signFn.call(
+    const signFnName = signFn === this.tronWeb.trx.signTypedData ? 'signTypedData' : '_signTypedData';
+    console.log(`[TronClientSigner.signTypedData] using ${signFnName}`);
+
+    const signature = await signFn.call(
       this.tronWeb.trx,
       typedDomain,
       types as Record<string, TypedDataField[]>,
       message,
       this.privateKey
     );
+    console.log(`[TronClientSigner.signTypedData] signature=${signature}`);
+    return signature;
   }
 
   async checkBalance(token: string, network: string): Promise<bigint> {
     const resolvedNetwork = network || (this.network ? `tron:${this.network}` : undefined);
+    console.log(`[TronClientSigner.checkBalance] token=${token}, network=${network}, resolved=${resolvedNetwork}`);
     if (!resolvedNetwork) {
       throw new UnsupportedNetworkError('network is required for checkBalance');
     }
 
     try {
       const ownerHex = toEvmHex(this.address);
+      console.log(`[TronClientSigner.checkBalance] ownerHex=${ownerHex}`);
 
       const result = await this.tronWeb.transactionBuilder.triggerConstantContract(
         token,
@@ -128,8 +143,11 @@ export class TronClientSigner implements ClientSigner {
         this.address
       );
 
+      console.log(`[TronClientSigner.checkBalance] result=${JSON.stringify(result)}`);
       if (result.result?.result && result.constant_result?.length) {
-        return BigInt('0x' + result.constant_result[0]);
+        const balance = BigInt('0x' + result.constant_result[0]);
+        console.log(`[TronClientSigner.checkBalance] balance=${balance}`);
+        return balance;
       }
     } catch (error) {
       console.error(`[TronClientSigner] Failed to check balance: ${error}`);
@@ -140,14 +158,17 @@ export class TronClientSigner implements ClientSigner {
 
   async checkAllowance(token: string, _amount: bigint, network: string): Promise<bigint> {
     const resolvedNetwork = network || (this.network ? `tron:${this.network}` : undefined);
+    console.log(`[TronClientSigner.checkAllowance] token=${token}, amount=${_amount}, network=${network}, resolved=${resolvedNetwork}`);
     if (!resolvedNetwork) {
       throw new UnsupportedNetworkError('network is required for checkAllowance');
     }
     const spender = getPaymentPermitAddress(resolvedNetwork);
+    console.log(`[TronClientSigner.checkAllowance] spender=${spender}`);
     
     try {
       const ownerHex = toEvmHex(this.address);
       const spenderHex = toEvmHex(spender);
+      console.log(`[TronClientSigner.checkAllowance] ownerHex=${ownerHex}, spenderHex=${spenderHex}`);
 
       const result = await this.tronWeb.transactionBuilder.triggerConstantContract(
         token,
@@ -160,8 +181,11 @@ export class TronClientSigner implements ClientSigner {
         this.address
       );
 
+      console.log(`[TronClientSigner.checkAllowance] result=${JSON.stringify(result)}`);
       if (result.result?.result && result.constant_result?.length) {
-        return BigInt('0x' + result.constant_result[0]);
+        const allowance = BigInt('0x' + result.constant_result[0]);
+        console.log(`[TronClientSigner.checkAllowance] allowance=${allowance}`);
+        return allowance;
       }
     } catch (error) {
       console.error(`[TronClientSigner] Failed to check allowance: ${error}`);

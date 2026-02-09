@@ -5,7 +5,7 @@
 import type { KeyProvider } from './keyProvider.js';
 
 /**
- * Adapt agent-wallet's TronProvider (or FlashProvider) to KeyProvider.
+ * Adapt agent-wallet's TronProvider to KeyProvider.
  *
  * Reads `address` and `tronWeb.defaultPrivateKey` from the provider.
  *

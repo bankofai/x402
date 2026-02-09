@@ -5,7 +5,9 @@
 export { TronClientSigner } from './signer.js';
 export { AgentWalletClientSigner } from './agentWalletSigner.js';
 export { TronProviderAdapter } from './adapter.js';
-export { createFlashProvider, createTronProvider } from './agentWalletProvider.js';
+export { TronProviderWrapper } from './providerWrapper.js';
+export type { BaseProviderWrapper } from './providerWrapper.js';
+export { createTronProvider } from './agentWalletProvider.js';
 export type { KeyProvider } from './keyProvider.js';
 export type {
   TronWeb,
