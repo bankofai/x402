@@ -2,16 +2,17 @@
 EvmFacilitatorSigner - EVM facilitator signer implementation
 """
 
-import asyncio
-import time
+import logging
 from typing import Any
 
 from x402_tron.abi import EIP712_DOMAIN_TYPE, PAYMENT_PERMIT_PRIMARY_TYPE
 from x402_tron.signers.facilitator.base import FacilitatorSigner
 
+logger = logging.getLogger(__name__)
+
 
 class EvmFacilitatorSigner(FacilitatorSigner):
-    """EVM facilitator signer implementation"""
+    """EVM facilitator signer implementation using web3.py"""
 
     def __init__(self, private_key: str, network: str | None = None) -> None:
         if not private_key.startswith("0x"):
@@ -20,6 +21,10 @@ class EvmFacilitatorSigner(FacilitatorSigner):
         self._network = network
         self._address = self._derive_address(private_key)
         self._async_web3_clients: dict[str, Any] = {}
+        logger.debug("EvmFacilitatorSigner initialized", extra={
+            "address": self._address,
+            "network": network
+        })
 
     @classmethod
     def from_private_key(
@@ -31,41 +36,23 @@ class EvmFacilitatorSigner(FacilitatorSigner):
     @staticmethod
     def _derive_address(private_key: str) -> str:
         """Derive EVM address from private key"""
-        try:
-            from eth_account import Account
-
-            account = Account.from_key(private_key)
-            return account.address
-        except ImportError:
-            # Fallback (should not happen if eth_account is installed)
-            return f"0x{private_key[-40:]}"
+        from eth_account import Account
+        return Account.from_key(private_key).address
 
     def get_address(self) -> str:
         return self._address
 
     def _ensure_async_web3_client(self, network: str | None = None) -> Any:
-        """Lazy initialize async web3 client for the given network.
-
-        Args:
-            network: Network identifier. Falls back to self._network if None.
-        """
+        """Lazy initialize async web3 client for the given network."""
         net = network or self._network
         if not net:
             return None
+
         if net not in self._async_web3_clients:
-            try:
-                from web3 import AsyncHTTPProvider, AsyncWeb3
+            from web3 import AsyncHTTPProvider, AsyncWeb3
+            provider_uri = net if net.startswith(("http", "ws")) else None
+            self._async_web3_clients[net] = AsyncWeb3(AsyncHTTPProvider(provider_uri))
 
-                provider_uri = None
-                if net.startswith("http") or net.startswith("ws"):
-                    provider_uri = net
-
-                if provider_uri:
-                    self._async_web3_clients[net] = AsyncWeb3(AsyncHTTPProvider(provider_uri))
-                else:
-                    self._async_web3_clients[net] = AsyncWeb3(AsyncHTTPProvider())
-            except ImportError:
-                return None
         return self._async_web3_clients[net]
 
     async def verify_typed_data(
@@ -81,16 +68,7 @@ class EvmFacilitatorSigner(FacilitatorSigner):
             from eth_account import Account
             from eth_account.messages import encode_typed_data
 
-            # Note: PaymentPermit contract uses EIP712Domain WITHOUT version field
-            # Contract:
-            # keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)")
-            full_types = {
-                "EIP712Domain": EIP712_DOMAIN_TYPE,
-                **types,
-            }
-
-            # Determine primary type from types dict (should be the last/main type)
-            # For PaymentPermit, the main type is "PaymentPermitDetails"
+            # TODO: Refactor FacilitatorSigner interface to accept primary_type explicitly
             primary_type = (
                 PAYMENT_PERMIT_PRIMARY_TYPE
                 if PAYMENT_PERMIT_PRIMARY_TYPE in types
@@ -106,25 +84,25 @@ class EvmFacilitatorSigner(FacilitatorSigner):
                     message_copy["meta"]["paymentId"] = bytes.fromhex(payment_id[2:])
 
             typed_data = {
-                "types": full_types,
+                "types": {"EIP712Domain": EIP712_DOMAIN_TYPE, **types},
                 "primaryType": primary_type,
                 "domain": domain,
                 "message": message_copy,
             }
 
             signable = encode_typed_data(full_message=typed_data)
-
             sig_bytes = bytes.fromhex(signature[2:] if signature.startswith("0x") else signature)
             recovered = Account.recover_message(signable, signature=sig_bytes)
 
             return recovered.lower() == address.lower()
-        except Exception:
+        except Exception as e:
+            logger.error("Signature verification failed", extra={"error": str(e)})
             return False
 
     async def write_contract(
         self,
         contract_address: str,
-        abi: str,
+        abi: Any,
         method: str,
         args: list[Any],
         network: str | None = None,
@@ -138,28 +116,23 @@ class EvmFacilitatorSigner(FacilitatorSigner):
             import json
             abi_list = json.loads(abi) if isinstance(abi, str) else abi
             contract = w3.eth.contract(address=contract_address, abi=abi_list)
-
             func = getattr(contract.functions, method)
-
-            # Estimate gas
-            # gas_estimate = await func(*args).estimate_gas({'from': self._address})
-
-            # Build transaction
-            nonce = await w3.eth.get_transaction_count(self._address)
-            chain_id = await w3.eth.chain_id
 
             tx = await func(*args).build_transaction({
                 'from': self._address,
-                'nonce': nonce,
-                'chainId': chain_id,
-                # 'gas': gas_estimate
+                'nonce': await w3.eth.get_transaction_count(self._address),
+                'chainId': await w3.eth.chain_id,
             })
 
             signed_tx = w3.eth.account.sign_transaction(tx, private_key=self._private_key)
             tx_hash = await w3.eth.send_raw_transaction(signed_tx.rawTransaction)
-
             return tx_hash.hex()
-        except Exception:
+        except Exception as e:
+            logger.error("Contract write failed", extra={
+                "method": method,
+                "contract": contract_address,
+                "error": str(e)
+            })
             return None
 
     async def wait_for_transaction_receipt(
@@ -171,15 +144,12 @@ class EvmFacilitatorSigner(FacilitatorSigner):
         """Wait for EVM transaction confirmation"""
         w3 = self._ensure_async_web3_client(network)
         if w3 is None:
-            raise RuntimeError("AsyncWeb3 client required")
+            raise RuntimeError("Web3 provider not configured")
 
-        try:
-            receipt = await w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
-            return {
-                "hash": tx_hash,
-                "blockNumber": str(receipt["blockNumber"]),
-                "status": "confirmed" if receipt["status"] == 1 else "failed",
-                "receipt": receipt
-            }
-        except Exception as e:
-            raise TimeoutError(f"Transaction {tx_hash} failed or timed out: {e}")
+        receipt = await w3.eth.wait_for_transaction_receipt(tx_hash, timeout=timeout)
+        return {
+            "hash": tx_hash,
+            "blockNumber": str(receipt["blockNumber"]),
+            "status": "confirmed" if receipt["status"] == 1 else "failed",
+            "receipt": receipt
+        }
