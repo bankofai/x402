@@ -23,7 +23,7 @@ def mock_tron_payment_requirements():
     from x402_tron.types import PaymentRequirements
 
     return PaymentRequirements(
-        scheme="exact",
+        scheme="exact_permit",
         network="tron:shasta",
         amount="1000000",
         asset="TTestUSDTAddress",
@@ -38,7 +38,7 @@ def mock_evm_payment_requirements():
     from x402_tron.types import PaymentRequirements
 
     return PaymentRequirements(
-        scheme="exact",
+        scheme="exact_permit",
         network="eip155:8453",
         amount="1000000",
         asset="0xTestUSDCAddress",

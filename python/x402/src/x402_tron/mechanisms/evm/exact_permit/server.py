@@ -1,11 +1,11 @@
 """
-ExactEvmServerMechanism - "exact" payment scheme EVM server mechanism
+ExactPermitEvmServerMechanism - "exact_permit" payment scheme EVM server mechanism
 """
 
-from x402_tron.mechanisms._exact_base.server import BaseExactServerMechanism
+from x402_tron.mechanisms._exact_permit_base.server import BaseExactPermitServerMechanism
 
 
-class ExactEvmServerMechanism(BaseExactServerMechanism):
+class ExactPermitEvmServerMechanism(BaseExactPermitServerMechanism):
     def _get_network_prefix(self) -> str:
         return "eip155:"
 

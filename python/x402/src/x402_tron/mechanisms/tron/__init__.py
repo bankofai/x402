@@ -2,10 +2,10 @@
 TRON mechanism implementations.
 """
 
-from x402_tron.mechanisms.tron.exact import (
-    ExactTronClientMechanism,
-    ExactTronFacilitatorMechanism,
-    ExactTronServerMechanism,
+from x402_tron.mechanisms.tron.exact_permit import (
+    ExactPermitTronClientMechanism,
+    ExactPermitTronFacilitatorMechanism,
+    ExactPermitTronServerMechanism,
 )
 from x402_tron.mechanisms.tron.native_exact import (
     NativeExactTronClientMechanism,
@@ -14,9 +14,9 @@ from x402_tron.mechanisms.tron.native_exact import (
 )
 
 __all__ = [
-    "ExactTronClientMechanism",
-    "ExactTronFacilitatorMechanism",
-    "ExactTronServerMechanism",
+    "ExactPermitTronClientMechanism",
+    "ExactPermitTronFacilitatorMechanism",
+    "ExactPermitTronServerMechanism",
     "NativeExactTronClientMechanism",
     "NativeExactTronFacilitatorMechanism",
     "NativeExactTronServerMechanism",

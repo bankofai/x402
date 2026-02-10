@@ -3,12 +3,12 @@ from typing import Any
 from x402_tron.abi import PAYMENT_PERMIT_ABI, get_abi_json, get_payment_permit_eip712_types
 from x402_tron.address import AddressConverter, TronAddressConverter
 from x402_tron.config import NetworkConfig
-from x402_tron.mechanisms._exact_base.facilitator import BaseExactFacilitatorMechanism
+from x402_tron.mechanisms._exact_permit_base.facilitator import BaseExactPermitFacilitatorMechanism
 from x402_tron.types import KIND_MAP, PaymentPermit, PaymentRequirements
 
 
-class ExactTronFacilitatorMechanism(BaseExactFacilitatorMechanism):
-    """exact 支付方案的 TRON facilitator 机制"""
+class ExactPermitTronFacilitatorMechanism(BaseExactPermitFacilitatorMechanism):
+    """exact_permit 支付方案的 TRON facilitator 机制"""
 
     def _get_address_converter(self) -> AddressConverter:
         return TronAddressConverter()

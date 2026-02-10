@@ -78,7 +78,7 @@ server.set_facilitator(FacilitatorClient("http://localhost:8001"))
 @x402_protected(
     server=server,
     prices=["1 USDT"],
-    schemes=["exact"],
+    schemes=["exact_permit"],
     network="tron:nile",
     pay_to="<YOUR_WALLET_ADDRESS>",
 )

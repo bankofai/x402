@@ -2,9 +2,9 @@
  * x402 Client Mechanisms
  */
 
-// exact scheme
-export { ExactTronClientMechanism } from './exact.js';
-export { ExactEvmClientMechanism } from './exactEvm.js';
+// exact_permit scheme
+export { ExactPermitTronClientMechanism } from './exact.js';
+export { ExactPermitEvmClientMechanism } from './exactEvm.js';
 
 // native_exact scheme
 export { NativeExactTronClientMechanism } from './nativeExactTron.js';

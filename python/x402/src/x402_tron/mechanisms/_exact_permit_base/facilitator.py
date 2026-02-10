@@ -1,5 +1,5 @@
 """
-BaseExactFacilitatorMechanism - Base class for "exact" payment scheme facilitator mechanisms.
+BaseExactPermitFacilitatorMechanism - Base class for "exact_permit" payment scheme facilitator mechanisms.
 
 Extracts common logic from EVM and TRON implementations.
 """
@@ -34,8 +34,8 @@ DEFAULT_BASE_FEE = 0
 FEE_QUOTE_EXPIRY_SECONDS = 300
 
 
-class BaseExactFacilitatorMechanism(FacilitatorMechanism):
-    """Base class for exact payment scheme facilitator mechanisms.
+class BaseExactPermitFacilitatorMechanism(FacilitatorMechanism):
+    """Base class for exact_permit payment scheme facilitator mechanisms.
 
     Subclasses only need to implement _get_address_converter() method.
     """
@@ -78,7 +78,7 @@ class BaseExactFacilitatorMechanism(FacilitatorMechanism):
         pass
 
     def scheme(self) -> str:
-        return "exact"
+        return "exact_permit"
 
     def _get_base_fee(self, token_address: str, network: str) -> int | None:
         """Get base fee for a token address by looking up its symbol.

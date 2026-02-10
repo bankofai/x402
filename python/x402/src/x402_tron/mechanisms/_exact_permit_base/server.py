@@ -1,5 +1,5 @@
 """
-BaseExactServerMechanism - Base class for "exact" payment scheme server mechanisms.
+BaseExactPermitServerMechanism - Base class for "exact_permit" payment scheme server mechanisms.
 
 Extracts common logic from EVM and TRON implementations.
 """
@@ -19,8 +19,8 @@ from x402_tron.tokens import TokenRegistry
 from x402_tron.types import KIND_MAP, PaymentRequirements, PaymentRequirementsExtra
 
 
-class BaseExactServerMechanism(ServerMechanism):
-    """Base class for exact payment scheme server mechanisms.
+class BaseExactPermitServerMechanism(ServerMechanism):
+    """Base class for exact_permit payment scheme server mechanisms.
 
     Subclasses only need to implement network prefix and address format validation.
     """
@@ -39,7 +39,7 @@ class BaseExactServerMechanism(ServerMechanism):
         pass
 
     def scheme(self) -> str:
-        return "exact"
+        return "exact_permit"
 
     async def parse_price(self, price: str, network: str) -> dict[str, Any]:
         """Parse price string to asset amount.

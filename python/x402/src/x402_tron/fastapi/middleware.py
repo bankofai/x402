@@ -31,7 +31,7 @@ class X402Middleware:
 
         @app.get("/protected")
         @middleware.protect(
-            prices=["100 USDC"], schemes=["exact"],
+            prices=["100 USDC"], schemes=["exact_permit"],
             network="eip155:8453", pay_to="0x...",
         )
         async def protected_endpoint():
@@ -58,7 +58,7 @@ class X402Middleware:
         Single token:
             @middleware.protect(
                 prices=["1 USDT"],
-                schemes=["exact"],
+                schemes=["exact_permit"],
                 network="tron:nile",
                 pay_to="T...",
             )
@@ -66,14 +66,14 @@ class X402Middleware:
         Multiple tokens, per-token scheme:
             @middleware.protect(
                 prices=["0.0001 USDT", "0.0001 DHLU"],
-                schemes=["exact", "native_exact"],
+                schemes=["exact_permit", "native_exact"],
                 network="eip155:97",
                 pay_to="0x...",
             )
 
         Args:
             prices: List of price strings (e.g. ["0.0001 USDT", "0.0001 DHLU"])
-            schemes: List of scheme strings matching *prices* (e.g. ["exact", "native_exact"])
+            schemes: List of scheme strings matching *prices* (e.g. ["exact_permit", "native_exact"])
             network: Network identifier (shared by all prices)
             pay_to: Payment recipient address
             valid_for: Payment validity period (seconds)
@@ -302,7 +302,7 @@ def x402_protected(
         @x402_protected(
             server,
             prices=["1 USDT"],
-            schemes=["exact"],
+            schemes=["exact_permit"],
             network="tron:nile",
             pay_to="T...",
         )
@@ -311,7 +311,7 @@ def x402_protected(
         @x402_protected(
             server,
             prices=["0.0001 USDT", "0.0001 DHLU"],
-            schemes=["exact", "native_exact"],
+            schemes=["exact_permit", "native_exact"],
             network="eip155:97",
             pay_to="0x...",
         )

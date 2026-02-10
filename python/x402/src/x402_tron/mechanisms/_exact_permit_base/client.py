@@ -1,5 +1,5 @@
 """
-BaseExactClientMechanism - Base class for "exact" payment scheme client mechanisms.
+BaseExactPermitClientMechanism - Base class for "exact_permit" payment scheme client mechanisms.
 
 Extracts common logic from EVM and TRON implementations.
 """
@@ -30,8 +30,8 @@ if TYPE_CHECKING:
     from x402_tron.signers.client import ClientSigner
 
 
-class BaseExactClientMechanism(ClientMechanism):
-    """Base class for exact payment scheme client mechanisms.
+class BaseExactPermitClientMechanism(ClientMechanism):
+    """Base class for exact_permit payment scheme client mechanisms.
 
     Subclasses only need to implement _get_address_converter() method.
     """
@@ -50,7 +50,7 @@ class BaseExactClientMechanism(ClientMechanism):
         return self._signer
 
     def scheme(self) -> str:
-        return "exact"
+        return "exact_permit"
 
     async def create_payment_payload(
         self,

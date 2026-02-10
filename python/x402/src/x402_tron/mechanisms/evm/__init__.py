@@ -2,10 +2,10 @@
 EVM mechanism implementations.
 """
 
-from x402_tron.mechanisms.evm.exact import (
-    ExactEvmClientMechanism,
-    ExactEvmFacilitatorMechanism,
-    ExactEvmServerMechanism,
+from x402_tron.mechanisms.evm.exact_permit import (
+    ExactPermitEvmClientMechanism,
+    ExactPermitEvmFacilitatorMechanism,
+    ExactPermitEvmServerMechanism,
 )
 from x402_tron.mechanisms.evm.native_exact import (
     NativeExactEvmClientMechanism,
@@ -14,9 +14,9 @@ from x402_tron.mechanisms.evm.native_exact import (
 )
 
 __all__ = [
-    "ExactEvmClientMechanism",
-    "ExactEvmFacilitatorMechanism",
-    "ExactEvmServerMechanism",
+    "ExactPermitEvmClientMechanism",
+    "ExactPermitEvmFacilitatorMechanism",
+    "ExactPermitEvmServerMechanism",
     "NativeExactEvmClientMechanism",
     "NativeExactEvmFacilitatorMechanism",
     "NativeExactEvmServerMechanism",

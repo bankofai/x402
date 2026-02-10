@@ -1,5 +1,5 @@
 """
-ExactEvmFacilitatorMechanism - "exact" payment scheme EVM facilitator mechanism
+ExactPermitEvmFacilitatorMechanism - "exact_permit" payment scheme EVM facilitator mechanism
 """
 
 from typing import Any
@@ -7,12 +7,12 @@ from typing import Any
 from x402_tron.abi import PAYMENT_PERMIT_ABI, get_abi_json
 from x402_tron.address import AddressConverter, EvmAddressConverter
 from x402_tron.config import NetworkConfig
-from x402_tron.mechanisms._exact_base.facilitator import BaseExactFacilitatorMechanism
+from x402_tron.mechanisms._exact_permit_base.facilitator import BaseExactPermitFacilitatorMechanism
 from x402_tron.types import PaymentRequirements
 
 
-class ExactEvmFacilitatorMechanism(BaseExactFacilitatorMechanism):
-    """exact payment scheme facilitator mechanism for EVM"""
+class ExactPermitEvmFacilitatorMechanism(BaseExactPermitFacilitatorMechanism):
+    """exact_permit payment scheme facilitator mechanism for EVM"""
 
     def _get_address_converter(self) -> AddressConverter:
         return EvmAddressConverter()

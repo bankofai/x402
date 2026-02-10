@@ -1,14 +1,14 @@
 """
-ExactTronServerMechanism - "exact" 支付方案的 TRON 服务器机制
+ExactPermitTronServerMechanism - "exact_permit" 支付方案的 TRON 服务器机制
 """
 
 from typing import Any
 
-from x402_tron.mechanisms._exact_base.server import BaseExactServerMechanism
+from x402_tron.mechanisms._exact_permit_base.server import BaseExactPermitServerMechanism
 from x402_tron.types import KIND_MAP
 
 
-class ExactTronServerMechanism(BaseExactServerMechanism):
+class ExactPermitTronServerMechanism(BaseExactPermitServerMechanism):
     def _get_network_prefix(self) -> str:
         return "tron:"
 

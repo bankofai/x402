@@ -1,10 +1,10 @@
 """
-Tests for ExactEvmServerMechanism - EVM exact payment scheme server.
+Tests for ExactPermitEvmServerMechanism - EVM exact payment scheme server.
 """
 
 import pytest
 
-from x402_tron.mechanisms.evm.exact import ExactEvmServerMechanism
+from x402_tron.mechanisms.evm.exact_permit import ExactPermitEvmServerMechanism
 from x402_tron.tokens import TokenInfo, TokenRegistry
 from x402_tron.types import PaymentRequirements
 
@@ -23,12 +23,12 @@ def _register_test_token():
 
 @pytest.fixture
 def mechanism():
-    return ExactEvmServerMechanism()
+    return ExactPermitEvmServerMechanism()
 
 
 class TestScheme:
     def test_scheme(self, mechanism):
-        assert mechanism.scheme() == "exact"
+        assert mechanism.scheme() == "exact_permit"
 
 
 class TestParsePrice:
@@ -53,7 +53,7 @@ class TestParsePrice:
 class TestValidatePaymentRequirements:
     def test_valid_requirements(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="1000000",
             asset=USDC_ADDRESS,
@@ -63,7 +63,7 @@ class TestValidatePaymentRequirements:
 
     def test_invalid_network(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="tron:nile",
             amount="1000000",
             asset=USDC_ADDRESS,
@@ -73,7 +73,7 @@ class TestValidatePaymentRequirements:
 
     def test_invalid_asset_format(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="1000000",
             asset="TNotEvmAddress",
@@ -83,7 +83,7 @@ class TestValidatePaymentRequirements:
 
     def test_invalid_payto_format(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="1000000",
             asset=USDC_ADDRESS,
@@ -93,7 +93,7 @@ class TestValidatePaymentRequirements:
 
     def test_zero_amount(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="0",
             asset=USDC_ADDRESS,
@@ -103,7 +103,7 @@ class TestValidatePaymentRequirements:
 
     def test_negative_amount(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="-100",
             asset=USDC_ADDRESS,
@@ -116,7 +116,7 @@ class TestEnhancePaymentRequirements:
     @pytest.mark.anyio
     async def test_adds_token_metadata(self, mechanism):
         req = PaymentRequirements(
-            scheme="exact",
+            scheme="exact_permit",
             network="eip155:8453",
             amount="1000000",
             asset=USDC_ADDRESS,
