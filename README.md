@@ -91,7 +91,7 @@ Clients handle the `402` challenge-response loop automatically using the SDK.
 
 **TypeScript Example:**
 ```typescript
-import { X402Client, X402FetchClient, ExactTronClientMechanism, TronClientSigner } from '@bankofai/x402-tron';
+import { X402Client, X402FetchClient, ExactPermitTronClientMechanism, TronClientSigner } from '@bankofai/x402-tron';
 import { TronWeb } from 'tronweb';
 
 // Setup TronWeb and Signer
@@ -100,7 +100,7 @@ const signer = TronClientSigner.withPrivateKey(tronWeb, '...', 'nile');
 
 // Register Mechanism and create Fetch Client
 const x402Client = new X402Client()
-  .register('tron:*', new ExactTronClientMechanism(signer));
+  .register('tron:*', new ExactPermitTronClientMechanism(signer));
 const client = new X402FetchClient(x402Client);
 
 // The SDK handles the 402 flow automatically
@@ -174,7 +174,7 @@ sequenceDiagram
 
 ## Supported Networks & Assets
 
-x402-tron supports TRC-20 tokens. Custom tokens can be registered via the `TokenRegistry`.
+x402 supports TRC-20 tokens. Custom tokens can be registered via the `TokenRegistry`.
 
 | Network | ID | Status | Recommended For |
 |---------|----|--------|-----------------|
@@ -215,7 +215,7 @@ cd typescript && pnpm test
 > - **Never commit secrets**: Do not hardcode private keys or commit `.env` files to version control.
 > - **Wallet Isolation**: Use dedicated wallets for development with only necessary funds.
 > - **Environment Variables**: Always use environment variables or secure vaults to manage sensitive credentials.
-> - **Protocol Status**: x402-tron is in active development. Ensure you test thoroughly on Nile or Shasta testnets before any mainnet deployment.
+> - **Protocol Status**: x402 is in active development. Ensure you test thoroughly on Nile or Shasta testnets before any mainnet deployment.
 
 ## Contributing
 
