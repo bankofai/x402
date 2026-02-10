@@ -122,7 +122,7 @@ class BaseExactClientMechanism(ClientMechanism):
         if requirements.extra and requirements.extra.fee:
             fee_to = requirements.extra.fee.fee_to
             fee_amount = requirements.extra.fee.fee_amount
-            caller = requirements.extra.fee.caller
+            caller = requirements.extra.fee.caller or converter.get_zero_address()
 
         # Normalize addresses (required for TRON, EVM returns as-is)
         return PaymentPermit(
