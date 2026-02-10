@@ -10,6 +10,20 @@ export interface TokenInfo {
 }
 
 const TOKENS: Record<string, Record<string, TokenInfo>> = {
+  'eip155:97': {
+    USDT: {
+      address: '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd',
+      decimals: 18,
+      name: 'Tether USD',
+      symbol: 'USDT',
+    },
+    USDC: {
+      address: '0x64544969ed7EBf5f083679233325356EbE738930',
+      decimals: 18,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
+  },
   'tron:mainnet': {
     USDT: {
       address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',

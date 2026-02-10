@@ -138,19 +138,6 @@ class X402Middleware:
 
                 requirements = (await self._server.build_payment_requirements([config]))[0]
 
-                verify_result = await self._server.verify_payment(payload, requirements)
-                if not verify_result.is_valid:
-                    import logging
-
-                    logger = logging.getLogger(__name__)
-                    logger.error(f"Payment verification failed: {verify_result.invalid_reason}")
-                    logger.error(f"Payload details: {payload.model_dump(by_alias=True)}")
-                    logger.error(f"Requirements: {requirements.model_dump(by_alias=True)}")
-                    return JSONResponse(
-                        content={"error": f"Verification failed: {verify_result.invalid_reason}"},
-                        status_code=400,
-                    )
-
                 settle_result = await self._server.settle_payment(payload, requirements)
                 if not settle_result.success:
                     import logging
@@ -301,6 +288,7 @@ def x402_protected(
     price: str | None = None,
     network: str | None = None,
     prices: list[str] | None = None,
+    scheme: str = "exact",
     **kwargs: Any,
 ) -> Callable:
     """
@@ -316,6 +304,9 @@ def x402_protected(
             pay_to="T...",
             prices=["1 USDT", "1 USDD"],
         )
+
+    Custom scheme:
+        @x402_protected(server, price="1 USDT", network="eip155:97", pay_to="0x...", scheme="exact")
     """
     middleware = X402Middleware(server)
-    return middleware.protect(price=price, network=network, pay_to=pay_to, prices=prices, **kwargs)
+    return middleware.protect(price=price, network=network, pay_to=pay_to, prices=prices, scheme=scheme, **kwargs)

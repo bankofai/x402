@@ -33,10 +33,12 @@ export class EvmClientSigner implements ClientSigner {
   private walletClient: WalletClient<Transport, Chain, Account>;
   private publicClients: Map<number, PublicClient> = new Map();
   private account: Account;
+  private rpcUrl?: string;
 
   constructor(privateKey: string, rpcUrl?: string) {
     const hexKey = privateKey.startsWith('0x') ? privateKey : `0x${privateKey}`;
     this.account = privateKeyToAccount(hexKey as Hex);
+    this.rpcUrl = rpcUrl;
     this.walletClient = createWalletClient({
       account: this.account,
       chain: mainnet,
@@ -149,7 +151,7 @@ export class EvmClientSigner implements ClientSigner {
       const walletClient = createWalletClient({
         account: this.account,
         chain: chain,
-        transport: http(),
+        transport: http(this.rpcUrl),
       });
 
       const hash = await walletClient.writeContract({
@@ -182,7 +184,7 @@ export class EvmClientSigner implements ClientSigner {
     if (!client) {
       client = createPublicClient({
         chain: this.getChain(chainId),
-        transport: http(),
+        transport: http(this.rpcUrl),
       });
       this.publicClients.set(chainId, client);
     }
