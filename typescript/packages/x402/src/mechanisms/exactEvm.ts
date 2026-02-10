@@ -1,8 +1,5 @@
 /**
  * ExactEvmClientMechanism - EVM client mechanism for "exact" payment scheme
- *
- * Uses EIP-712 for signing PaymentPermit. EVM addresses are used directly
- * without conversion.
  */
 
 import type {
@@ -20,6 +17,7 @@ import {
   getPaymentPermitAddress,
   EVM_ZERO_ADDRESS,
   EvmAddressConverter,
+  ZERO_ADDRESS_HEX,
   PermitValidationError,
 } from '../index.js';
 
@@ -84,7 +82,7 @@ export class ExactEvmClientMechanism implements ClientMechanism {
       requirements.network
     );
 
-    // Build EIP-712 domain (no version field per contract spec)
+    // Build EIP-712 domain
     const permitAddress = getPaymentPermitAddress(requirements.network);
     const domain = {
       name: 'PaymentPermit',
@@ -93,7 +91,6 @@ export class ExactEvmClientMechanism implements ClientMechanism {
     };
 
     // Convert permit to EIP-712 compatible format
-    // EVM addresses are already in 0x format, no conversion needed
     const permitForSigning = {
       meta: {
         kind: KIND_MAP[permit.meta.kind],
@@ -102,15 +99,15 @@ export class ExactEvmClientMechanism implements ClientMechanism {
         validAfter: permit.meta.validAfter,
         validBefore: permit.meta.validBefore,
       },
-      buyer: permit.buyer,
-      caller: permit.caller,
+      buyer: this.addressConverter.toEvmFormat(permit.buyer),
+      caller: this.addressConverter.toEvmFormat(permit.caller),
       payment: {
-        payToken: permit.payment.payToken,
+        payToken: this.addressConverter.toEvmFormat(permit.payment.payToken),
         payAmount: BigInt(permit.payment.payAmount),
-        payTo: permit.payment.payTo,
+        payTo: this.addressConverter.toEvmFormat(permit.payment.payTo),
       },
       fee: {
-        feeTo: permit.fee.feeTo,
+        feeTo: this.addressConverter.toEvmFormat(permit.fee.feeTo),
         feeAmount: BigInt(permit.fee.feeAmount),
       },
     };

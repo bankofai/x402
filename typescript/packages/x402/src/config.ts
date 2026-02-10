@@ -8,16 +8,35 @@ import { UnsupportedNetworkError } from './errors.js';
 /** Chain IDs for supported networks */
 export const CHAIN_IDS: Record<string, number> = {
   // TRON networks
-  'tron:mainnet': 728126428,   // 0x2b6653dc
-  'tron:shasta': 2494104990,   // 0x94a9059e
-  'tron:nile': 3448148188,     // 0xcd8690dc
+  'tron:mainnet': 728126428, // 0x2b6653dc
+  'tron:shasta': 2494104990, // 0x94a9059e
+  'tron:nile': 3448148188, // 0xcd8690dc
+
+  // EVM networks
+  'eip155:1': 1, // Ethereum Mainnet
+  'eip155:11155111': 11155111, // Sepolia
+  'eip155:56': 56, // BSC Mainnet
+  'eip155:97': 97, // BSC Testnet
 };
+
+/** Network identifier constants */
+export const NETWORKS = {
+  TRON_MAINNET: 'tron:mainnet',
+  TRON_SHASTA: 'tron:shasta',
+  TRON_NILE: 'tron:nile',
+  EVM_MAINNET: 'eip155:1',
+  EVM_SEPOLIA: 'eip155:11155111',
+  BSC_MAINNET: 'eip155:56',
+  BSC_TESTNET: 'eip155:97',
+} as const;
 
 /** PaymentPermit contract addresses */
 export const PAYMENT_PERMIT_ADDRESSES: Record<string, string> = {
   'tron:mainnet': 'TT8rEWbCoNX7vpEUauxb7rWJsTgs8vDLAn',
   'tron:shasta': 'TR2XninQ3jsvRRLGTifFyUHTBysffooUjt',
   'tron:nile': 'TFxDcGvS7zfQrS1YzcCMp673ta2NHHzsiH',
+  'eip155:97': '0x1825bB32db3443dEc2cc7508b2D818fc13EaD878',
+  // TODO: Add BSC Mainnet PaymentPermit address here
 };
 
 /** Zero address for TRON */
