@@ -99,21 +99,28 @@ class X402Client:
         self._policies: list[PaymentPolicy] = []
         self._token_strategy = token_strategy
 
-    def register_policy(self, policy: PaymentPolicy) -> "X402Client":
+    def register_policy(self, policy: "type[PaymentPolicy] | PaymentPolicy") -> "X402Client":
         """
-        Register a payment policy.
+        Register a payment policy (class or instance).
 
-        Policies are applied in order after mechanism filtering
-        and before token selection.
+        If a class is passed, it is instantiated with this client as argument.
 
         Args:
-            policy: Callable that filters/reorders payment requirements
+            policy: Policy class or instance
 
         Returns:
             self for method chaining
         """
-        self._policies.append(policy)
+        instance = policy(self) if isinstance(policy, type) else policy
+        self._policies.append(instance)
         return self
+
+    def resolve_signer(self, scheme: str, network: str) -> Any:
+        """Resolve a signer from registered mechanisms for the given scheme+network."""
+        mechanism = self._find_mechanism(scheme, network)
+        if mechanism is not None and hasattr(mechanism, "get_signer"):
+            return mechanism.get_signer()
+        return None
 
     def register(self, network_pattern: str, mechanism: ClientMechanism) -> "X402Client":
         """

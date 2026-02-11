@@ -11,7 +11,7 @@ from bankofai.x402.tokens import TokenRegistry
 from bankofai.x402.types import PaymentRequirements
 
 if TYPE_CHECKING:
-    from bankofai.x402.signers.client.base import ClientSigner
+    from bankofai.x402.clients.x402_client import X402Client
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +29,22 @@ class SufficientBalancePolicy:
     this policy checks the user's on-chain balance for each option
     and removes requirements the user cannot afford.
 
+    Signers are auto-resolved from registered mechanisms via the
+    X402Client instance passed at construction time.
+
+    Usage::
+
+        client.register_policy(SufficientBalancePolicy)
+
+    Requirements whose network has no matching signer are kept as-is
+    (not filtered out), so downstream mechanism matching can still work.
+
     If all requirements are unaffordable, returns an empty list so the
     caller can raise an appropriate error.
     """
 
-    def __init__(self, signer: "ClientSigner") -> None:
-        self._signer = signer
+    def __init__(self, client: "X402Client") -> None:
+        self._client = client
 
     async def apply(
         self,
@@ -42,7 +52,20 @@ class SufficientBalancePolicy:
     ) -> list[PaymentRequirements]:
         affordable: list[PaymentRequirements] = []
         for req in requirements:
-            balance = await self._signer.check_balance(req.asset, req.network)
+            signer = self._client.resolve_signer(req.scheme, req.network)
+            if signer is None:
+                # No signer for this network — keep the requirement so
+                # mechanism matching can still select it.
+                affordable.append(req)
+                continue
+
+            try:
+                balance = await signer.check_balance(req.asset, req.network)
+            except Exception:
+                # Signer cannot query this network; keep the requirement.
+                affordable.append(req)
+                continue
+
             needed = int(req.amount)
             if hasattr(req, "extra") and req.extra and hasattr(req.extra, "fee"):
                 fee = req.extra.fee
