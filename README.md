@@ -1,8 +1,8 @@
 # x402
 
-x402 is the TRON blockchain implementation of the **x402 open payment standard**. It turns the HTTP `402 Payment Required` status code into a programmable, accountless payment layer for APIs, digital content, and AI agents.
+x402 is an open blockchain payment standard built on the HTTP `402 Payment Required` status code. It enables web services to charge for APIs or content through a "pay-before-response" mechanism — without relying on traditional account systems or session management.
 
-by leveraging TRON's high speed and low fees, x402 enables friction-free, machine-to-machine commerce without API keys, subscriptions, or sign-ups.
+x402 currently supports the **TRON** and **BSC** networks, with plans to expand to a broader multi-chain ecosystem in the future.
 
 ---
 
@@ -14,12 +14,11 @@ by leveraging TRON's high speed and low fees, x402 enables friction-free, machin
 
 - **Protocol Native**: Restores the HTTP `402` status code to its intended purpose.
 - **AI Ready**: First-class support for AI Agents via specialized x402 skills.
-- **Trust Minimized**: Uses TRON's **TIP-712** structured data signing. Facilitators cannot modify payment terms.
+- **Trust Minimized**: Uses structured data signing. Facilitators cannot modify payment terms.
 - **Stateless & Accountless**: No user accounts or session management required. Payments are verified per request.
 - **Framework Integrations**: 
     - **Python**: FastAPI, Flask, httpx
     - **TypeScript**: Native fetch, Node.js
-- **Broad Network Support**: TRON Mainnet, Nile (Testnet), and Shasta.
 
 ## Installation
 
@@ -49,13 +48,13 @@ x402 is designed for the Agentic Web. AI agents can autonomously negotiate and p
 This skill enables agents to:
 
 1. Detect `402 Payment Required` responses.
-2. Sign TIP-712 payment authorizations automatically.
+2. Sign payment authorizations automatically.
 3. Manage wallet balances and handle the challenge-response loop.
 
 ## Quick Start
 
 ### 1. Facilitator
-The Facilitator is responsible for verifying TIP-712 signatures and executing on-chain settlements.
+The Facilitator is responsible for verifying payment signatures and executing on-chain settlements.
 
 - **Self-Hosted**: Developers currently need to deploy their own facilitator instance. Detailed deployment instructions can be found in the [**demo repository quick start**](https://github.com/bankofai/x402-demo/tree/main?tab=readme-ov-file#quick-start).
 - **Official Facilitator**: An official, hosted facilitator service is **coming soon**, which will eliminate the need for server-side blockchain infrastructure.
@@ -141,7 +140,7 @@ The x402 protocol involves three parties:
 
 - **Client**: Entity wanting to pay for a resource
 - **Resource Server**: HTTP server providing protected resources
-- **Facilitator**: Server that verifies and settles payments on TRON
+- **Facilitator**: Server that verifies and settles payments on-chain
 
 ### Payment Flow
 
@@ -150,7 +149,7 @@ sequenceDiagram
     participant Client
     participant Server as Resource Server
     participant Facilitator
-    participant Blockchain as TRON Blockchain
+    participant Blockchain as Blockchain
 
     Note over Facilitator: Facilitators are optional,<br/>all logical steps could be<br/>performed by the server<br/>when accepting stablecoins<br/>or crypto
 
@@ -174,7 +173,7 @@ sequenceDiagram
 
 ## Supported Networks & Assets
 
-x402 supports TRC-20 tokens. Custom tokens can be registered via the `TokenRegistry`.
+x402 currently supports TRC-20 tokens on the TRON network. Custom tokens can be registered via the `TokenRegistry`.
 
 | Network | ID | Status | Recommended For |
 |---------|----|--------|-----------------|
