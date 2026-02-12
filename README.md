@@ -14,7 +14,7 @@ x402 currently supports the **TRON** and **BSC** networks, with plans to expand 
 
 - **Protocol Native**: Restores the HTTP `402` status code to its intended purpose.
 - **AI Ready**: First-class support for AI Agents via specialized x402 skills.
-- **Trust Minimized**: Uses structured data signing. Facilitators cannot modify payment terms.
+- **Trust Minimized**: Uses **TIP-712/EIP-712** structured data signing. Facilitators cannot modify payment terms.
 - **Stateless & Accountless**: No user accounts or session management required. Payments are verified per request.
 - **Framework Integrations**: 
     - **Python**: FastAPI, Flask, httpx
@@ -54,7 +54,7 @@ This skill enables agents to:
 ## Quick Start
 
 ### 1. Facilitator
-The Facilitator is responsible for verifying payment signatures and executing on-chain settlements.
+The Facilitator is responsible for verifying TIP-712/EIP-712 signatures and executing on-chain settlements.
 
 - **Self-Hosted**: Deploy and manage your own Facilitator instance for full control over fee policies and settlement strategies. See the [**demo repository quick start**](https://github.com/bankofai/x402-demo/tree/main?tab=readme-ov-file#quick-start) for deployment instructions.
 - **Official Facilitator**: An [officially hosted Facilitator](https://github.com/bankofai/x402-facilitator) service is available, allowing you to use x402 without deploying infrastructure yourself.
